@@ -17,6 +17,7 @@ def calculate_dti(
         gross_monthly_income: Applicant's gross monthly income.
         total_monthly_debt: Applicant's total monthly debt obligations.
 
+
     Returns:
         A structured dictionary containing the input values,
         calculated DTI percentage, status, and warnings.
