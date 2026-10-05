@@ -8,21 +8,7 @@ def calculate_dti(
     gross_monthly_income: Decimal,
     total_monthly_debt: Decimal,
 ) -> dict[str, Any]:
-    """
-    Calculate the Debt-to-Income (DTI) ratio.
-
-    DTI = (total monthly debt / gross monthly income) * 100
-
-    Args:
-        gross_monthly_income: Applicant's gross monthly income.
-        total_monthly_debt: Applicant's total monthly debt obligations.
-
-
-    Returns:
-        A structured dictionary containing the input values,
-        calculated DTI percentage, status, and warnings.
-    """
-
+    
     warnings: list[str] = []
 
     # Validate gross monthly income
