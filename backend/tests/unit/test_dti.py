@@ -2,7 +2,6 @@ from decimal import Decimal
 
 from app.calculations.dti import calculate_dti
 
-
 def test_calculate_dti():
     result = calculate_dti(
         gross_monthly_income=Decimal("8000"),

@@ -1,1 +1,1 @@
-"""Unit test package."""
+"""Unit tests for mortgage underwriting calculations."""
