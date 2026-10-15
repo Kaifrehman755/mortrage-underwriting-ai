@@ -1,12 +1,24 @@
-"""Credit Analysis Agent (Reserved for Phase 1+).
 
-Responsible for:
-- Parsing credit bureau data
-- Analyzing trade lines, inquiries, and derogatory marks
-- Synthesizing qualitative borrower credit narrative
+"""Credit Analysis Agent.
+
+Responsible for coordinating borrower credit-score analysis.
 """
+
+from typing import Any
+
+from app.calculations.credit_analysis import calculate_credit_analysis
 
 
 class CreditAgent:
-    """Agent placeholder for borrower credit evaluation."""
-    pass
+    """Agent for evaluating a borrower's credit score."""
+
+    def analyze(self, fico_score: int) -> dict[str, Any]:
+        """Analyze a FICO score using the existing calculation module."""
+
+        credit_result = calculate_credit_analysis(fico_score)
+
+        return {
+            "agent": "credit_analysis",
+            "status": "completed",
+            "credit_analysis": credit_result,
+        }
