@@ -33,99 +33,99 @@ export const HealthStatus: React.FC = () => {
   }, []);
 
   return (
-    <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-6 shadow-sm">
+    <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-xs">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-2">
-          <Activity className="w-5 h-5 text-indigo-400" />
-          <h2 className="text-base font-semibold text-white">System Health & Connectivity</h2>
+          <Activity className="w-5 h-5 text-indigo-600" />
+          <h2 className="text-base font-semibold text-slate-900">System Health & Connectivity</h2>
         </div>
         <button
           onClick={checkHealth}
           disabled={loading}
-          className="flex items-center space-x-1.5 text-xs text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 px-2.5 py-1.5 rounded-md border border-slate-700 transition disabled:opacity-50"
+          className="flex items-center space-x-1.5 text-xs text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-2.5 py-1.5 rounded-lg border border-slate-200 transition disabled:opacity-50"
         >
-          <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin text-indigo-400" : ""}`} />
+          <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin text-indigo-600" : ""}`} />
           <span>Refresh</span>
         </button>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {/* Backend Status Card */}
-        <div className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-4">
+        <div className="bg-slate-50 border border-slate-200 rounded-xl p-4">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-slate-400 font-medium flex items-center gap-1.5">
-              <Server className="w-4 h-4 text-slate-400" />
+            <span className="text-xs text-slate-600 font-medium flex items-center gap-1.5">
+              <Server className="w-4 h-4 text-slate-500" />
               FastAPI Backend
             </span>
             {health?.status === "healthy" ? (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
                 <CheckCircle2 className="w-3 h-3" /> Healthy
               </span>
             ) : error ? (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-rose-500/10 text-rose-400 border border-rose-500/20">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200">
                 <AlertCircle className="w-3 h-3" /> Offline
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
                 Checking...
               </span>
             )}
           </div>
           <div className="mt-3">
-            <p className="text-xs text-slate-400 font-mono truncate">
-              Service: <span className="text-slate-200">{health?.service || "mortgage-underwriting-api"}</span>
+            <p className="text-xs text-slate-500 font-mono truncate">
+              Service: <span className="text-slate-800 font-semibold">{health?.service || "mortgage-underwriting-api"}</span>
             </p>
-            <p className="text-xs text-slate-400 font-mono mt-0.5">
-              Version: <span className="text-slate-200">{health?.version || "0.1.0"}</span>
+            <p className="text-xs text-slate-500 font-mono mt-0.5">
+              Version: <span className="text-slate-800">{health?.version || "0.1.0"}</span>
             </p>
           </div>
         </div>
 
         {/* PostgreSQL Status Card */}
-        <div className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-4">
+        <div className="bg-slate-50 border border-slate-200 rounded-xl p-4">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-slate-400 font-medium flex items-center gap-1.5">
-              <Database className="w-4 h-4 text-slate-400" />
+            <span className="text-xs text-slate-600 font-medium flex items-center gap-1.5">
+              <Database className="w-4 h-4 text-slate-500" />
               PostgreSQL
             </span>
             {health?.database === "connected" ? (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
                 <CheckCircle2 className="w-3 h-3" /> Connected
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-slate-500/10 text-slate-400 border border-slate-600">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200">
                 {health?.database || "Standby"}
               </span>
             )}
           </div>
           <div className="mt-3">
-            <p className="text-xs text-slate-400 font-mono">
-              Environment: <span className="text-slate-200">{health?.environment || "development"}</span>
+            <p className="text-xs text-slate-500 font-mono">
+              Environment: <span className="text-slate-800 font-semibold">{health?.environment || "development"}</span>
             </p>
-            <p className="text-xs text-slate-400 font-mono mt-0.5">
-              Driver: <span className="text-slate-200">asyncpg / SQLAlchemy</span>
+            <p className="text-xs text-slate-500 font-mono mt-0.5">
+              Driver: <span className="text-slate-800">asyncpg / SQLAlchemy</span>
             </p>
           </div>
         </div>
 
         {/* Sync & Connection Info */}
-        <div className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-4 sm:col-span-2 lg:col-span-1">
+        <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 sm:col-span-2 lg:col-span-1">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-slate-400 font-medium">Heartbeat Status</span>
+            <span className="text-xs text-slate-600 font-medium">Heartbeat Status</span>
             <span className="text-[10px] font-mono text-slate-500">Auto-poll 15s</span>
           </div>
           <div className="mt-3">
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-500">
               Last Verified:{" "}
-              <span className="text-slate-200 font-mono">{lastUpdated || "Initializing..."}</span>
+              <span className="text-slate-800 font-mono font-semibold">{lastUpdated || "Initializing..."}</span>
             </p>
             {error && (
-              <p className="text-xs text-rose-400 mt-1 line-clamp-1" title={error}>
+              <p className="text-xs text-rose-600 mt-1 line-clamp-1" title={error}>
                 Error: {error}
               </p>
             )}
             {!error && health && (
-              <p className="text-xs text-emerald-400 mt-1">CORS & REST Channel Active</p>
+              <p className="text-xs text-emerald-600 font-medium mt-1">CORS & REST Channel Active</p>
             )}
           </div>
         </div>

@@ -62,16 +62,16 @@ export const Dashboard: React.FC = () => {
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Top Banner */}
-      <div className="bg-gradient-to-r from-indigo-900/40 via-slate-900 to-slate-900 border border-indigo-500/20 rounded-xl p-6 relative overflow-hidden">
+      <div className="bg-gradient-to-r from-indigo-50 via-white to-blue-50 border border-indigo-200 rounded-2xl p-6 relative overflow-hidden shadow-sm">
         <div className="relative z-10">
-          <div className="flex items-center space-x-2 text-indigo-400 text-xs font-mono mb-2">
+          <div className="flex items-center space-x-2 text-indigo-700 text-xs font-mono font-bold mb-2">
             <Cpu className="w-4 h-4" />
             <span>FOUNDATION PHASE 0 COMPLETED</span>
           </div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
             AI Mortgage Underwriting Automation System
           </h1>
-          <p className="text-slate-400 text-sm mt-1 max-w-3xl leading-relaxed">
+          <p className="text-slate-600 text-sm mt-1 max-w-3xl leading-relaxed font-medium">
             Clean architectural skeleton established. API endpoints, async PostgreSQL engine,
             Pydantic validation, structured logging, exception handlers, Next.js shell, and Docker Compose are configured.
           </p>
@@ -85,11 +85,11 @@ export const Dashboard: React.FC = () => {
       <div>
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-base font-semibold text-white flex items-center gap-2">
-              <FolderGit2 className="w-4 h-4 text-indigo-400" />
+            <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
+              <FolderGit2 className="w-4 h-4 text-indigo-600" />
               Underwriting Pipeline Modules
             </h2>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-slate-500 mt-0.5 font-medium">
               Future modular components isolated by domain and ready for incremental implementation.
             </p>
           </div>
@@ -101,23 +101,23 @@ export const Dashboard: React.FC = () => {
             return (
               <div
                 key={stage.title}
-                className="bg-slate-900/60 border border-slate-800 rounded-lg p-5 hover:border-slate-700 transition"
+                className="bg-white border border-slate-200 shadow-sm rounded-xl p-5 hover:border-indigo-300 hover:shadow-md transition"
               >
                 <div className="flex items-start justify-between">
-                  <div className="p-2 bg-slate-800 rounded-lg border border-slate-700/50">
-                    <Icon className="w-4 h-4 text-indigo-400" />
+                  <div className="p-2.5 bg-indigo-50 rounded-lg border border-indigo-200">
+                    <Icon className="w-4 h-4 text-indigo-600" />
                   </div>
-                  <span className="text-[10px] font-mono font-medium px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">
+                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
                     {stage.phase}
                   </span>
                 </div>
 
-                <h3 className="text-sm font-semibold text-slate-200 mt-3">{stage.title}</h3>
-                <p className="text-xs text-slate-400 mt-1 leading-relaxed">{stage.desc}</p>
+                <h3 className="text-sm font-bold text-slate-900 mt-3">{stage.title}</h3>
+                <p className="text-xs text-slate-600 mt-1 leading-relaxed">{stage.desc}</p>
 
-                <div className="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500 font-mono">
+                <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500 font-mono font-medium">
                   <span>Status:</span>
-                  <span className="text-slate-400">{stage.status}</span>
+                  <span className="text-indigo-700 font-bold">{stage.status}</span>
                 </div>
               </div>
             );
