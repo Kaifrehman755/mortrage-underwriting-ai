@@ -113,7 +113,7 @@ Stores official circle rates, guidance values, or ready-reckoner rates. Never tr
 | `property_category` | String(50) | Residential plot, flat, independent house |
 | `rate_raw` | Numeric | Original published rate |
 | `rate_unit_raw` | String(30) | per sqm, per sqft, per sqyd |
-| `rate_inr_per_sqft` | Numeric | Normalized reference rate in INR per **square foot** (never per square metre). Physical column retains the historical name `rate_inr_normalized`; renaming it is deferred to an authorised migration. |
+| `rate_inr_per_sqft` | Numeric | Normalized reference rate in INR per **square foot** (never per square metre). Contract, ORM attribute and physical column all use this name (renamed from `rate_inr_normalized` under the ratified F-17/F-12 migration). |
 | `effective_from` | Date | Effective notification start date |
 | `effective_to` | Date | Nullable |
 | `published_at` | Date | Notification publication date |

@@ -7,8 +7,8 @@ Verifies (Phase 2, Priority 3 — F-17):
 3. A known fixture's normalized value matches its field name (per sq ft != per sq m).
 4. The circle-rate ingestion default property type matches the API default
    (``residential_flat``), fixing the ``residential`` vs ``residential_flat`` mismatch.
-5. The physical/ORM column keeps its historical name (no migration required) but is
-   documented with the square-foot basis.
+5. The physical/ORM column uses the unambiguous ``rate_inr_per_sqft`` name (F-12 migration) and
+   is documented with the square-foot basis.
 6. Generated processed fixtures use the new field name.
 """
 
@@ -108,13 +108,14 @@ def test_api_lookup_default_property_type_is_canonical() -> None:
 
 
 # =========================================================================
-# 5. ORM/DB column is documented (historical name retained, no migration needed)
+# 5. ORM/DB column uses the unambiguous name (F-12 migration)
 # =========================================================================
 
 
-def test_orm_column_retains_name_with_documented_foot_basis() -> None:
-    assert "rate_inr_normalized" in ReferenceRate.__table__.c
-    column = ReferenceRate.__table__.c["rate_inr_normalized"]
+def test_orm_column_uses_unambiguous_foot_basis_name() -> None:
+    assert "rate_inr_per_sqft" in ReferenceRate.__table__.c
+    assert "rate_inr_normalized" not in ReferenceRate.__table__.c
+    column = ReferenceRate.__table__.c["rate_inr_per_sqft"]
     assert "square foot" in (column.comment or "").lower()
 
 

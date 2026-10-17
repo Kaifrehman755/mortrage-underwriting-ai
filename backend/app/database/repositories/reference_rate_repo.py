@@ -8,8 +8,6 @@ Enforces GEMINI.md Section 4.5:
 from __future__ import annotations
 
 from datetime import date
-from typing import Any
-from uuid import UUID
 
 from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
@@ -28,8 +26,8 @@ class ReferenceRateRepository:
     async def create_or_update(self, record: ReferenceRateCreate) -> ReferenceRate:
         """Upsert a reference rate keyed by unique constraint.
 
-        F-17: the contract field is ``rate_inr_per_sqft``; the ORM attribute / physical column
-        keeps the historical name ``rate_inr_normalized`` (basis: INR per square foot).
+        F-17/F-12: the contract field, ORM attribute and physical column are all named
+        ``rate_inr_per_sqft`` (basis: INR per square foot).
         """
         insert_stmt = pg_insert(ReferenceRate).values(
             source_id=record.source_id,
@@ -39,7 +37,7 @@ class ReferenceRateRepository:
             property_category=record.property_category,
             rate_raw=record.rate_raw,
             rate_unit_raw=record.rate_unit_raw,
-            rate_inr_normalized=record.rate_inr_per_sqft,
+            rate_inr_per_sqft=record.rate_inr_per_sqft,
             effective_from=record.effective_from,
             effective_to=record.effective_to,
             published_at=record.published_at,
@@ -51,7 +49,7 @@ class ReferenceRateRepository:
             constraint="uq_reference_rate_state_dist_loc_cat_date",
             set_={
                 "rate_raw": insert_stmt.excluded.rate_raw,
-                "rate_inr_normalized": insert_stmt.excluded.rate_inr_normalized,
+                "rate_inr_per_sqft": insert_stmt.excluded.rate_inr_per_sqft,
                 "source_url": insert_stmt.excluded.source_url,
                 "source_record_hash": insert_stmt.excluded.source_record_hash,
             },

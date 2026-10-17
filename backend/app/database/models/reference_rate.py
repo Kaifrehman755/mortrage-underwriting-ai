@@ -42,11 +42,10 @@ class ReferenceRate(Base, TimestampMixin):
 
     rate_raw: Mapped[float] = mapped_column(Float, nullable=False)
     rate_unit_raw: Mapped[str] = mapped_column(String(30), nullable=False)
-    # F-17: the basis is INR per square FOOT (never per square metre). The contract/API name is
-    # `rate_inr_per_sqft`; this ORM attribute and the physical column keep the historical name
-    # `rate_inr_normalized` so no migration is required. Renaming the column is deferred to an
-    # authorised F-12 migration.
-    rate_inr_normalized: Mapped[float | None] = mapped_column(
+    # F-17/F-12: the basis is INR per square FOOT (never per square metre). The contract, ORM
+    # attribute and physical DB column all use the unambiguous name `rate_inr_per_sqft`
+    # (renamed from the historical `rate_inr_normalized` under the ratified F-12 migration).
+    rate_inr_per_sqft: Mapped[float | None] = mapped_column(
         Float,
         nullable=True,
         index=True,
