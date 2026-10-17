@@ -1,6 +1,6 @@
 # Verification report
 
-Generated: 2026-10-17T09:01:45.856597+00:00
+Generated: 2026-10-17T10:09:30.339244+00:00
 Python: `C:\Users\HP\Documents\mortrage-underwriting-ai\.venv\Scripts\python.exe`
 
 | Check | Blocking | Exit | Status |
@@ -10,6 +10,7 @@ Python: `C:\Users\HP\Documents\mortrage-underwriting-ai\.venv\Scripts\python.exe
 | mypy (backend app) | no | 1 | INFO |
 | data provenance (check_sources --verify-fixtures) | yes | 0 | PASS |
 | migration config (check_migrations --config-only) | yes | 0 | PASS |
+| migration readiness (check_migrations) | yes | 0 | PASS |
 | dataset validation (validate_dataset) | yes | 0 | PASS |
 | database config (check_database) | yes | 0 | PASS |
 
@@ -23,10 +24,10 @@ Command: `C:\Users\HP\Documents\mortrage-underwriting-ai\.venv\Scripts\python.ex
 Exit code: **0**
 
 ```
-........................................................................ [ 31%]
-........................................................................ [ 62%]
-........................................................................ [ 93%]
-...............                                                          [100%]
+........................................................................ [ 30%]
+........................................................................ [ 61%]
+........................................................................ [ 91%]
+...................                                                      [100%]
 ============================== warnings summary ===============================
 .venv\Lib\site-packages\fastapi\testclient.py:1
   C:\Users\HP\Documents\mortrage-underwriting-ai\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
@@ -37,7 +38,8 @@ tests/unit/test_exceptions.py::test_validation_exception
     exc = ValidationException("Invalid borrower income", details={"field": "income"})
 
 tests/unit/test_health.py::test_root_status_endpoint
-  <frozen abc>:123: RuntimeWarning: coroutine 'Connection._cancel' was never awaited
+  C:\Users\HP\AppData\Local\Programs\Python\Python311\Lib\warnings.py:186: RuntimeWarning: coroutine 'Connection._cancel' was never awaited
+    filters.remove(item)
   Enable tracemalloc to get traceback where the object was allocated.
   See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
 
@@ -46,7 +48,7 @@ tests/unit/test_health.py::test_root_status_endpoint
 
 ## ruff (remediation files)
 
-Command: `C:\Users\HP\Documents\mortrage-underwriting-ai\.venv\Scripts\python.exe -m ruff check backend/app/agents/property_agent.py backend/app/core/config.py backend/app/security/auth.py backend/app/security/rate_limit.py backend/app/ingestion/circle_rates.py backend/app/models/__init__.py backend/app/property/__init__.py backend/app/property/comps.py backend/app/property/normalize.py backend/app/property/market_index.py backend/app/valuation/__init__.py backend/tests/unit/test_f02_market_index.py backend/tests/unit/test_f03_data_provenance.py backend/tests/unit/test_f04_circle_rate_quarantine.py backend/tests/unit/test_f05_auth_access_policy.py backend/tests/unit/test_f06_cors_config.py backend/tests/unit/test_f07_secrets_config.py backend/tests/unit/test_f08_ingestion_ssrf.py backend/tests/unit/test_f09_settings_env_sync.py backend/tests/unit/test_f10_canonical_pipeline.py backend/tests/unit/test_f11_dependency_manifest.py backend/tests/unit/test_f12_migration_checker.py backend/tests/unit/test_f14_error_handling.py backend/tests/unit/test_f17_unit_semantics.py backend/tests/unit/test_f18_deliverables.py scripts/check_sources.py scripts/check_migrations.py scripts/check_database.py scripts/validate_dataset.py scripts/build_dataset.py scripts/run_verification.py` (cwd: `C:\Users\HP\Documents\mortrage-underwriting-ai`)
+Command: `C:\Users\HP\Documents\mortrage-underwriting-ai\.venv\Scripts\python.exe -m ruff check backend/app/agents/property_agent.py backend/app/core/config.py backend/app/security/auth.py backend/app/security/rate_limit.py backend/app/ingestion/circle_rates.py backend/app/models/__init__.py backend/app/property/__init__.py backend/app/property/comps.py backend/app/property/normalize.py backend/app/property/market_index.py backend/app/valuation/__init__.py backend/tests/unit/test_f02_market_index.py backend/tests/unit/test_f03_data_provenance.py backend/tests/unit/test_f04_circle_rate_quarantine.py backend/tests/unit/test_f05_auth_access_policy.py backend/tests/unit/test_f06_cors_config.py backend/tests/unit/test_f07_secrets_config.py backend/tests/unit/test_f08_ingestion_ssrf.py backend/tests/unit/test_f09_settings_env_sync.py backend/tests/unit/test_f10_canonical_pipeline.py backend/tests/unit/test_f11_dependency_manifest.py backend/tests/unit/test_f12_migration_checker.py backend/tests/unit/test_f14_error_handling.py backend/tests/unit/test_f17_unit_semantics.py backend/tests/unit/test_f18_deliverables.py scripts/check_sources.py scripts/check_migrations.py scripts/check_database.py scripts/validate_dataset.py scripts/build_dataset.py scripts/run_verification.py migrations` (cwd: `C:\Users\HP\Documents\mortrage-underwriting-ai`)
 
 Exit code: **0**
 
@@ -129,9 +131,30 @@ Migration readiness check (F-12)
   [OK  ] targets canonical ORM tree (app.database.models)
   [OK  ] sqlalchemy.url has no embedded credentials
   [OK  ] migrations/versions/ exists
-  revision files: none
+  revision files: ['e35561efe721_initial_schema.py']
+  heads: ['e35561efe721']
 Config: OK
-  - migrations/versions/ has no revision files - F-12 open (blocked on an authorised disposable PostGIS database for autogenerate + upgrade/downgrade)
+```
+
+## migration readiness (check_migrations)
+
+Command: `C:\Users\HP\Documents\mortrage-underwriting-ai\.venv\Scripts\python.exe scripts/check_migrations.py` (cwd: `C:\Users\HP\Documents\mortrage-underwriting-ai`)
+
+Exit code: **0**
+
+_F-12: fails if no revision or more than one head exists_
+
+```
+Migration readiness check (F-12)
+  [OK  ] migrations/env.py
+  [OK  ] migrations/script.py.mako
+  [OK  ] alembic.ini
+  [OK  ] targets canonical ORM tree (app.database.models)
+  [OK  ] sqlalchemy.url has no embedded credentials
+  [OK  ] migrations/versions/ exists
+  revision files: ['e35561efe721_initial_schema.py']
+  heads: ['e35561efe721']
+Ready: YES
 ```
 
 ## dataset validation (validate_dataset)

@@ -1,8 +1,8 @@
 # Progress — India Property-Valuation Backend
 
 **Scope:** India property-valuation backend only. No RAG, compliance, frontend or US-mortgage work.
-**Governing instructions (not edited):** `CLAUDE.md` / `GEMINI.md`, `backend/app/property/playbook.md`,
-`data/regulatory_docs/.clinerules/*`.
+**Governing instructions (not edited):** `GEMINI.md` (the duplicate `CLAUDE.md` was removed in the
+ratification commit), `backend/app/property/playbook.md`, `data/regulatory_docs/.clinerules/*`.
 **Authoritative brief + per-finding status log:** `SECURITY_AUDIT_REPORT.md`.
 **Roll-up report:** `REMEDIATION_SUMMARY.md`.
 
@@ -26,7 +26,7 @@ the required scripts/reports, and the documented deviations.
 | F-09 `.env.example` out of sync + embedding-model mismatch | MEDIUM | REMEDIATED |
 | F-10 two parallel valuation pipelines / ORM trees | MEDIUM | REMEDIATED (canonical designation) |
 | F-11 duplicated dependency declarations | MEDIUM | REMEDIATED (static verification) |
-| F-12 no Alembic revision files | MEDIUM | **BLOCKED** (needs an authorised disposable PostGIS DB) |
+| F-12 no Alembic revision files | MEDIUM | REMEDIATED (initial revision + tested upgrade/downgrade on a disposable DB) |
 | F-13 RAG out-of-scope with fabricated content | MEDIUM | OPEN — out of scope (documented) |
 | F-14 broad exception handling / leaked error text | LOW | REMEDIATED |
 | F-15 `rows_rejected` accounting unreachable | LOW | REMEDIATED |
@@ -43,7 +43,7 @@ the required scripts/reports, and the documented deviations.
 | Deliverable | Status | Purpose |
 |---|---|---|
 | `scripts/check_sources.py` | present | Source-readiness checks; `--verify-fixtures` verifies reference-rate + market-index provenance |
-| `scripts/check_migrations.py` | present | Static Alembic readiness (config, canonical ORM target, revisions/heads); reports F-12 open |
+| `scripts/check_migrations.py` | present | Static Alembic readiness (config, canonical ORM target, revisions/heads); reports **Ready: YES** now that the initial revision exists |
 | `scripts/check_database.py` | present | PostGIS config check (static by default) and `--connect` read-only probe |
 | `scripts/validate_dataset.py` | present | Validates on-disk processed rows, manifests and quarantine records |
 | `scripts/build_dataset.py` | present | Gated dataset builder (dry-run by default; fails closed on unapproved sources) |
@@ -66,17 +66,33 @@ Reproduce:
 
 ## 3. Documented blockers and gate consequences
 
-* **F-12 (Alembic).** `migrations/versions/` has no revision file. Generating and testing the initial
-  revision requires a live disposable PostGIS database (autogenerate + `upgrade head` /
-  `downgrade base`), which is **not authorised**. `scripts/check_migrations.py` reports this explicitly
-  and exits non-zero, so the gap is never silent.
+* **F-12 (Alembic) — RESOLVED.** The initial revision
+  `migrations/versions/e35561efe721_initial_schema.py` now exists (10 `create_table` + 40
+  `create_index`; no PostGIS-managed objects). It was generated and exercised against the disposable
+  database `mortgage_underwriting_test` on the local PostGIS container **only** (the live
+  `mortgage_underwriting` database was never touched):
+
+  | Step | Result |
+  |---|---|
+  | `CREATE DATABASE mortgage_underwriting_test TEMPLATE template_postgis` | exit 0 |
+  | `alembic revision --autogenerate -m "initial schema"` | exit 0 → initial revision (10 tables) |
+  | `alembic upgrade head` | exit 0 → 10 tables + `alembic_version`; `rate_inr_per_sqft` present |
+  | `alembic downgrade base` | exit 0 → only `alembic_version` left (0 rows); PostGIS intact |
+  | `alembic upgrade head` (repeat) | exit 0 → repeatable in both directions |
+  | `scripts/check_migrations.py` | **Ready: YES** (1 revision, 1 head) |
+
+  Two hazards were fixed to make this work: the autogenerate `include_object` filter that keeps
+  Alembic away from PostGIS internals (`spatial_ref_sys`, `tiger`, `topology` — otherwise the first
+  draft dropped 47 system tables), and the duplicate spatial index on `property_records.location`
+  (GeoAlchemy2 auto-created one *and* the generated `create_index` created another).
 * **F-03 (source approval gate).** The four reference-rate fixture sources are `pending_review`, so the
   canonical, gated ingestion refuses them. Consequently `scripts/build_dataset.py` currently reports all
   four states as `BLOCKED` and exits `2`. That is the intended, fail-closed behaviour — the existing
   `data/processed/**` files remain labelled synthetic dev fixtures and are **not** rebuilt.
-* **Not authorised / not run:** dependency vulnerability scan, Docker build, live DB migrations, live
-  fetch of government sources (RBI DBIE HPI values were not fetched; the market-index series stays an
-  unverified fixture).
+* **Not authorised / not run:** dependency vulnerability scan, Docker build, live fetch of government
+  sources (RBI DBIE HPI values were not fetched; the market-index series stays an unverified fixture).
+  The Alembic migration *was* authorised and run, but only against the disposable
+  `mortgage_underwriting_test` database.
 
 ---
 
@@ -95,6 +111,8 @@ Reproduce:
 
 ## 5. Remaining open decisions
 
-1. Ratify `docs/security/access_policy.md` as the F-05 access-policy location (instead of the README).
-2. Ratify the `rate_inr_normalized` → `rate_inr_per_sqft` rename in the governing docs (`CLAUDE.md` /
-   `GEMINI.md` §4.5 still name the old field; the governing docs were not edited).
+1. ~~Ratify `docs/security/access_policy.md` as the F-05 access-policy location~~ — **ratified**; the
+   README now points to it.
+2. ~~Ratify the `rate_inr_normalized` → `rate_inr_per_sqft` rename in the governing docs~~ —
+   **ratified**; `GEMINI.md` §4.5 and `data/schema.md` now name `rate_inr_per_sqft`, and the physical
+   column was renamed by the F-12 initial revision.

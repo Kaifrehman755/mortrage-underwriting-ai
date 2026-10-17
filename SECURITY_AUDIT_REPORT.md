@@ -1062,4 +1062,63 @@ are informational; nothing was built and no controls were changed.
   and the misplaced `.clinerules` were documented rather than changed, and `AGENTS.md` / `.clineignore`
   do not exist.
 - **RAG `yaml` dependency** remains undeclared and out of scope.
-- **No Docker build, no dependency vulnerability scan** — not authorised.
+- **No Docker build, no dependency vulnerability scan** — not authorised.
+
+---
+
+## Priority 7 — F-12 unblocked; owner ratifications RESOLVED (2026-10-17)
+
+**Status:** **F-12 REMEDIATED**. This section supersedes the earlier "F-12 — BLOCKED (documented)"
+entry (which was accurate when written) and closes the two ratifications that were listed as outstanding
+in the F-17 and F-05 sections.
+
+### Owner decisions applied
+1. **F-12 authorised** against the **disposable** local database `mortgage_underwriting_test` only. The
+   live `mortgage_underwriting` database was never touched.
+2. **F-17 rename ratified**: the physical `reference_rates.rate_inr_normalized` column is renamed to
+   `rate_inr_per_sqft`; `GEMINI.md` section 4.5 and `data/schema.md` were updated to name the new field.
+3. **F-05 access policy ratified**: `docs/security/access_policy.md` is the authoritative policy, now
+   linked from `README.md`.
+
+### F-12 — what changed
+| File | Change |
+|---|---|
+| `migrations/env.py` | Added an autogenerate `include_object` filter that excludes PostGIS-managed objects (`spatial_ref_sys`, the `tiger` and `topology` schemas) so application migrations never manage PostGIS internals. Removed a pre-existing unused `import os`. |
+| `migrations/script.py.mako` | Modernised the revision template (PEP 604 unions, `collections.abc.Sequence`) so generated revisions are lint-clean. |
+| `migrations/versions/e35561efe721_initial_schema.py` | New initial revision: 10 `create_table` + 40 `create_index`; zero PostGIS-managed objects. |
+| `backend/app/database/models/reference_rate.py` | ORM attribute/column renamed `rate_inr_normalized` -> `rate_inr_per_sqft`. |
+| `backend/app/database/repositories/reference_rate_repo.py` | Direct mapping to `rate_inr_per_sqft`; removed two pre-existing unused imports. |
+| `backend/app/database/models/property.py` | Geometry column set to `spatial_index=False`; the explicit GIST `Index("idx_property_record_location", ...)` is now the single spatial index. Removed pre-existing unused imports. |
+| `backend/tests/unit/test_f12_migration_checker.py` | +4 tests (3 -> 7) pinning the revision shape. |
+| `backend/tests/unit/test_f17_unit_semantics.py` | Assertion updated: the ORM column now uses the unambiguous `rate_inr_per_sqft` name. |
+
+### Hazards found and fixed while doing F-12 (both would have been destructive)
+1. **PostGIS internals.** The first `alembic revision --autogenerate` run emitted **47 destructive
+   `op.drop_table` operations** (24 `tiger.*` tables/objects, the `topology` schema, and
+   `spatial_ref_sys`) and also tried to *create* `spatial_ref_sys`. The `include_object` filter removes
+   all of them; the committed revision contains none.
+2. **Duplicate spatial index.** `property_records.location` was declared with GeoAlchemy2's automatic
+   spatial index (`spatial_index=True`, default) **and** an explicit GIST index, so `upgrade` failed with
+   `relation "idx_property_records_location" already exists`. `spatial_index=False` makes Alembic the
+   single owner of the explicitly-named `idx_property_record_location`.
+
+### F-12 — commands executed and results
+| Command | Result |
+|---|---|
+| `docker exec mortgage-postgres psql -c "CREATE DATABASE mortgage_underwriting_test TEMPLATE template_postgis"` | exit 0 |
+| `alembic revision --autogenerate -m "initial schema"` | exit 0 -> `migrations/versions/e35561efe721_initial_schema.py` |
+| `alembic upgrade head` | exit 0 -> 10 application tables + `alembic_version`; `reference_rates.rate_inr_per_sqft` present; `idx_property_record_location` present; `property_records.location` type `geometry` |
+| `alembic downgrade base` | exit 0 -> only `alembic_version` remains (0 rows); PostGIS intact (`spatial_ref_sys` = 8,500 rows) |
+| `alembic upgrade head` (repeat) | exit 0 -> 11 tables; both directions are repeatable |
+| `psql -d mortgage_underwriting -tAc "SELECT count(*) FROM pg_tables ..."` | unchanged — the live database was never touched |
+| `python scripts/check_migrations.py` | **Ready: YES** (1 revision `e35561efe721`, 1 head), exit 0 |
+| `python -m pytest backend/tests -q` | **235 collected, 0 failed (exit 0)** |
+| `python -m ruff check <remediation files + migrations/>` | all checks passed |
+| `python scripts/run_verification.py --write reports/verification_report.md` | exit 0 — 8 checks, all blocking PASS |
+
+### Residual after Priority 7
+- **F-13 (RAG)** remains out of scope and unmodified; the undeclared `pyyaml` import remains a residual.
+- **F-18** remains partially complete (see Priority 6 residual).
+- The `rate_inr_per_sqft` rename was applied to the **disposable** database only; rolling it out to a
+  real environment means running the initial revision there (out of scope here).
+- `README.md` is still US-oriented; it now contains a pointer to the ratified access policy.

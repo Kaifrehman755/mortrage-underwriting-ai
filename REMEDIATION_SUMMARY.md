@@ -5,7 +5,7 @@
 **Authoritative brief + append-only status log:** `SECURITY_AUDIT_REPORT.md`
 **Baseline audit:** findings F-01…F-20, audit date 2026-10-17
 **Scope:** India property-valuation backend only. No RAG / compliance / frontend / US-mortgage work.
-**Governing instructions (not edited):** `CLAUDE.md` / `GEMINI.md`, `backend/app/property/playbook.md`, `data/regulatory_docs/.clinerules/*`
+**Governing instructions (not edited):** `GEMINI.md` (duplicate `CLAUDE.md` removed in the ratification commit), `backend/app/property/playbook.md`, `data/regulatory_docs/.clinerules/*`
 
 > This is a **summary/roll-up** document. It does not replace `SECURITY_AUDIT_REPORT.md`
 > (the brief and per-finding status log) or `docs/security/access_policy.md` (the endpoint
@@ -17,17 +17,17 @@
 
 | Metric | Value |
 |---|---|
-| Findings remediated and verified | **15** (F-01, F-02, F-03, F-04, F-05, F-06, F-07, F-08, F-09, F-10, F-11, F-14, F-15, F-16, F-17) |
-| Findings blocked (documented, not guessed at) | **1** (F-12 — needs an authorised disposable PostGIS DB) |
+| Findings remediated and verified | **16** (F-01, F-02, F-03, F-04, F-05, F-06, F-07, F-08, F-09, F-10, F-11, F-12, F-14, F-15, F-16, F-17) |
+| Findings blocked (documented, not guessed at) | **0** — F-12 was unblocked and completed against the disposable DB |
 | Findings partially advanced | **1** (F-18 — R21 deliverables added; doc conflicts documented) |
 | Findings still fully open | **1** (F-13 — RAG, out of scope); F-19/F-20 are informational |
-| Priorities completed | **Priority 1–5 (except F-12) and the in-scope Priority 6 items** |
+| Priorities completed | **Priority 1–6 in-scope, including F-12** |
 | Priorities not started | — |
-| Full test suite | **231 collected, 0 failed** (exit 0) |
-| New regression tests written this effort | **113** across the F-01…F-18 suites |
-| Lint (touched files) | **0 findings** |
+| Full test suite | **235 collected, 0 failed** (exit 0) |
+| New regression tests written this effort | **117** across the F-01…F-18 suites |
+| Lint (touched files, incl. `migrations/`) | **0 findings** |
 | Type check | 9 errors in 7 files (down from 17), **none** in touched files |
-| VCS state | **No commits made** — all changes remain uncommitted/untracked on `main` |
+| VCS state | **Committed in logical groups, no secrets** — `phase2-remediation`, continued on `phase-4` |
 
 ### What was achieved
 The critical, high- and medium-severity **data-integrity** and **API/config security** findings were
@@ -39,9 +39,8 @@ the whole API/config trust boundary (F-05 authentication, F-06 CORS, F-07 secret
 **F-18** is partially closed: the R21 scripts/reports now exist and the doc conflicts are documented.
 
 ### What remains
-F-12 (Alembic migrations) is **blocked on an authorised disposable PostGIS database** and is documented
-rather than guessed at; **F-13** (RAG fabricated content) is explicitly out of scope and left untouched;
-F-19/F-20 are informational.
+**F-13** (RAG fabricated content) is explicitly out of scope and left untouched; **F-18**'s remaining
+documentation-conflict items are recorded rather than edited; F-19/F-20 are informational.
 
 ---
 
@@ -60,7 +59,7 @@ F-19/F-20 are informational.
 | F-09 | MEDIUM | `.env.example` out of sync + embedding-model mismatch | **REMEDIATED** | `test_f09_settings_env_sync.py` (5) |
 | F-10 | MEDIUM | Two parallel valuation pipelines / two ORM trees | **REMEDIATED** | `test_f10_canonical_pipeline.py` (7) + `docs/architecture/canonical_pipeline.md` |
 | F-11 | MEDIUM | Duplicated deps; deleted `backend/requirements.txt` referenced | **REMEDIATED** (static) | `test_f11_dependency_manifest.py` (6) |
-| F-12 | MEDIUM | No Alembic revision files | **BLOCKED — documented** (needs authorised DB) | `scripts/check_migrations.py` + `test_f12_migration_checker.py` (3) |
+| F-12 | MEDIUM | No Alembic revision files | **REMEDIATED** | Initial revision + `upgrade head`/`downgrade base` on disposable `mortgage_underwriting_test`; `test_f12_migration_checker.py` (7) |
 | F-13 | MEDIUM | RAG layer out-of-scope with fabricated content | **OPEN** — out of scope (documented) | Priority 6 |
 | F-14 | LOW | Broad exception handling hides failures / leaks text | **REMEDIATED** | `test_f14_error_handling.py` (8) |
 | F-15 | LOW | `rows_rejected` accounting unreachable | **REMEDIATED** | `test_ingestion_pipeline.py` (9 total) |
@@ -181,7 +180,7 @@ public endpoint broken.
 - No official host assumed (provenance still unverified per F-03).
 - Tests: `backend/tests/unit/test_f08_ingestion_ssrf.py` (20) — all offline (mocked transport, temp dirs).
 
-### Priority 5 — Maintainability and deployment (COMPLETE ✅ except F-12)
+### Priority 5 — Maintainability and deployment (COMPLETE ✅)
 
 **F-09 — `.env.example` sync + embedding-model mismatch (MEDIUM)**
 - `.env.example` already documents every setting (synchronised as an F-07 side-effect) and was verified
@@ -212,14 +211,23 @@ public endpoint broken.
   was run — the defect class is caught statically.
 - Residual: `app/rag/ingestion.py` imports `yaml` (PyYAML), undeclared and out of scope.
 
-**F-12 — no Alembic revision files (MEDIUM) — BLOCKED, documented**
-- Preparing/testing the initial revision needs a **live disposable PostGIS DB** (autogenerate +
-  `upgrade head` / `downgrade base`), which is **not authorised**. Per owner decision F-12 stays blocked.
-- Prepared without a database: `scripts/check_migrations.py` (static readiness checker — validates
-  `env.py`/`script.py.mako`/`alembic.ini`, confirms the canonical ORM target, confirms the URL embeds no
-  credentials, inventories revisions/heads) and `migrations/versions/.gitkeep`.
-- Tests: `backend/tests/unit/test_f12_migration_checker.py` (3). The checker exits non-zero today
-  (`Ready: NO`, "no revision files — F-12 open") so the gap is never silent.
+**F-12 — no Alembic revision files (MEDIUM) — REMEDIATED**
+- Owner-authorised against the **disposable** database `mortgage_underwriting_test` on the local PostGIS
+  container only; the live `mortgage_underwriting` database was never touched.
+- Initial revision `migrations/versions/e35561efe721_initial_schema.py` (10 `create_table` + 40
+  `create_index`, no PostGIS-managed objects). `upgrade head` → 10 tables + `alembic_version`;
+  `downgrade base` → clean (only `alembic_version`, 0 rows); `upgrade head` again → repeatable.
+  `scripts/check_migrations.py` now reports **Ready: YES** (1 revision, 1 head).
+- Two hazards fixed so the revision is safe: (1) an autogenerate `include_object` filter in
+  `migrations/env.py` that excludes PostGIS internals — without it the first autogenerate emitted **47
+  destructive `op.drop_table` operations** (24 `tiger.*`, `topology`, `spatial_ref_sys`); (2) the
+  duplicate spatial index on `property_records.location` (GeoAlchemy2's automatic index + the generated
+  `create_index`) — `spatial_index=False` now makes Alembic the single owner.
+- Also modernised `migrations/script.py.mako` (PEP 604 annotations + `collections.abc.Sequence`) so
+  generated revisions are lint-clean.
+- Tests: `backend/tests/unit/test_f12_migration_checker.py` (7) — the checker's config/revision
+  inventory plus guards pinning the revision shape (root revision, canonical tables, ratified
+  `rate_inr_per_sqft` column, no PostGIS internals, single spatial index).
 
 ### Priority 6 — Scope and reliability (in-scope items COMPLETE ✅; F-13 out of scope)
 
@@ -268,16 +276,17 @@ has been explicitly re-verified against the full test suite (7 dedicated `test_f
 
 | Command | Result |
 |---|---|
-| `.venv/Scripts/python.exe -m pytest backend/tests -q` | **231 collected, 0 failed (exit 0)** |
-| `.venv/Scripts/python.exe -m ruff check <remediation files>` | **All checks passed** (0 findings) |
+| `.venv/Scripts/python.exe -m pytest backend/tests -q` | **235 collected, 0 failed (exit 0)** |
+| `.venv/Scripts/python.exe -m ruff check <remediation files + migrations/>` | **All checks passed** (0 findings) |
 | `../.venv/Scripts/python.exe -m mypy app` (from `backend/`) | 9 errors in 7 files — down from 17 at baseline; **none** in touched files |
 | `.venv/Scripts/python.exe scripts/check_sources.py --verify-fixtures` | exit 0 (reference-rate + market-index provenance OK) |
-| `.venv/Scripts/python.exe scripts/check_migrations.py` | config OK, **Ready: NO**, exit 1 (F-12 open, as documented) |
+| `.venv/Scripts/python.exe scripts/check_migrations.py` | **Ready: YES** (1 revision `e35561efe721`, 1 head), exit 0 |
 | `.venv/Scripts/python.exe scripts/check_migrations.py --config-only` | exit 0 |
+| `alembic upgrade head` / `downgrade base` on disposable `mortgage_underwriting_test` | exit 0 / exit 0 (10 tables created, then clean rollback; repeatable; live DB untouched) |
 | `.venv/Scripts/python.exe scripts/validate_dataset.py` | exit 0 (5 processed files / 38 rows, 6 manifests, 1 quarantine file, 0 errors) |
 | `.venv/Scripts/python.exe scripts/check_database.py` | exit 0 (static; 10 expected tables; credentials redacted; no connection) |
 | `.venv/Scripts/python.exe scripts/build_dataset.py` | exit 2 — **fails closed** (all fixture sources `pending_review`, F-03 gate enforced, nothing written) |
-| `.venv/Scripts/python.exe scripts/run_verification.py` | exit 0 — all blocking checks PASS (mypy INFO) |
+| `.venv/Scripts/python.exe scripts/run_verification.py` | exit 0 — 8 checks; all blocking checks PASS (mypy INFO only) |
 
 **Test suite composition (this effort's suites):**
 
@@ -294,7 +303,7 @@ has been explicitly re-verified against the full test suite (7 dedicated `test_f
 | `test_f09_settings_env_sync.py` | 5 | F-09 |
 | `test_f10_canonical_pipeline.py` | 7 | F-10 |
 | `test_f11_dependency_manifest.py` | 6 | F-11 |
-| `test_f12_migration_checker.py` | 3 | F-12 |
+| `test_f12_migration_checker.py` | 7 | F-12 |
 | `test_f14_error_handling.py` | 8 | F-14 |
 | `test_f18_deliverables.py` | 21 | F-18 |
 | `test_ingestion_pipeline.py` | 9 | F-15, F-16 (+ canonical pipeline) |
@@ -309,11 +318,13 @@ Reports of pre-existing lint/type findings elsewhere are **not** regressions int
 These were **not performed** because they are outside the authorised scope:
 
 - Installing dev tools (pip-audit, pytest-postgresql, geopy, …).
-- Disposable-PostGIS **Alembic upgrade/downgrade** → F-12 stays blocked (owner decision).
 - **Docker** build / compose → owner decided the F-11 static checks are sufficient.
 - **Dependency vulnerability scan**.
 - Fetching live government source URLs to verify F-02/F-03 provenance (external **partial**: RBI DBIE HPI
   values were not fetched → the market-index fixture remains an *unverified* labelled fixture).
+
+> The Alembic migration **was** authorised and run — but only against the disposable
+> `mortgage_underwriting_test` database; the live database was out of bounds and was not touched.
 
 ---
 
@@ -321,8 +332,6 @@ These were **not performed** because they are outside the authorised scope:
 
 | Item | Detail | Priority |
 |---|---|---|
-| F-12 migrations | No `migrations/versions/*` revision; needs an authorised disposable PostGIS DB for autogenerate + tested rollback. `scripts/check_migrations.py` reports the gap. | 5 |
-| F-12 column rename | Renaming the physical `reference_rates.rate_inr_normalized` column needs an authorised migration | 5 |
 | RAG `yaml` dependency | `app/rag/ingestion.py` imports PyYAML, undeclared in any manifest (RAG out of scope) | 5 |
 | F-13 | RAG fabricated content (out of scope, untouched) + residuals `commands.py::market()` hard-coded figures and `jurisdictions.py` `hpi_base_year="2022-23"` | 6 |
 | F-18 | R21 scripts/reports now present; remaining: conflicts documented (US-oriented `README.md`, `.clinerules` under `data/regulatory_docs/`), `AGENTS.md`/`.clineignore` absent, RAG `yaml` undeclared | 6 |
@@ -338,14 +347,18 @@ These were **not performed** because they are outside the authorised scope:
 Resolved in this phase:
 - **F-01 attribution** — F-01 is recorded as **REMEDIATED** in both documents (7 `test_f01_*` tests).
 - **F-10 designation** — owner chose `app/property` + `app/database/models` as canonical.
-- **F-12 / F-11 authorisation** — F-12 stays blocked (documented); no Docker build for F-11.
+- **F-11 authorisation** — no Docker build; the manifest defect class is caught statically.
+- **F-12 authorisation** — F-12 was unblocked and completed against the disposable
+  `mortgage_underwriting_test` database only.
+- **Access-policy location** — **ratified**: `docs/security/access_policy.md` is authoritative, with a
+  pointer from `README.md`.
+- **`rate_inr_normalized` → `rate_inr_per_sqft`** — **ratified**: `GEMINI.md` §4.5 and `data/schema.md`
+  now name `rate_inr_per_sqft`, and the physical column was renamed by the F-12 initial revision.
 
 Still open:
-1. **Access-policy location** — the F-05 remediation text suggested `README`/`PROGRESS`; the policy was
-   recorded in `docs/security/access_policy.md` instead. Ratify that location or request a README pointer.
-2. **`rate_inr_normalized` → `rate_inr_per_sqft`** — `GEMINI.md`/`CLAUDE.md` §4.5 still list the old
-   field name (governing docs were **not** edited). Ratify the rename in the governing docs, or confirm
-   the contract→column mapping documented in `data/schema.md`.
+1. **F-13 (RAG)** — explicitly out of scope; left untouched and documented.
+2. **F-18 remaining documentation conflicts** — recorded, not edited (US-oriented `README.md`,
+   `.clinerules` location, absent `AGENTS.md`/`.clineignore`).
 
 ---
 
@@ -366,8 +379,8 @@ cd backend && ../.venv/Scripts/python.exe -m mypy app
 # Provenance fixture check (expect exit 0)
 cd .. && ./.venv/Scripts/python.exe scripts/check_sources.py --verify-fixtures
 
-# Migration readiness (config OK, Ready: NO until F-12 is unblocked)
-./.venv/Scripts/python.exe scripts/check_migrations.py --config-only
+# Migration readiness (expect Ready: YES with the initial revision)
+./.venv/Scripts/python.exe scripts/check_migrations.py
 
 # One-pass verification of all approved checks (writes reports/verification_report.md)
 ./.venv/Scripts/python.exe scripts/run_verification.py --write reports/verification_report.md

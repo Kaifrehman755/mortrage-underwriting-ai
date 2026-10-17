@@ -65,6 +65,7 @@ RUFF_FILES = [
     "scripts/validate_dataset.py",
     "scripts/build_dataset.py",
     "scripts/run_verification.py",
+    "migrations",
 ]
 
 
@@ -103,6 +104,12 @@ CHECKS: list[Check] = [
         "migration config (check_migrations --config-only)",
         [PYTHON, "scripts/check_migrations.py", "--config-only"],
         REPO_ROOT,
+    ),
+    Check(
+        "migration readiness (check_migrations)",
+        [PYTHON, "scripts/check_migrations.py"],
+        REPO_ROOT,
+        note="F-12: fails if no revision or more than one head exists",
     ),
     Check("dataset validation (validate_dataset)", [PYTHON, "scripts/validate_dataset.py"], REPO_ROOT),
     Check("database config (check_database)", [PYTHON, "scripts/check_database.py"], REPO_ROOT),
