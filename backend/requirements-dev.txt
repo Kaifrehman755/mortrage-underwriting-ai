@@ -1,5 +1,19 @@
-pytest>=8.1.0,<9.0.0
+# ==============================================================================
+# DEVELOPMENT / CI DEPENDENCIES
+# ==============================================================================
+# F-11: test and lint tooling used to live in two places with conflicting version
+# ranges. It now lives here only, and this file extends the runtime manifest so
+# there is a single source of truth for shared packages.
+
+-r requirements.txt
+
+# --- Testing ---
+pytest>=8.3,<10.0
 pytest-asyncio>=0.23.5,<1.0.0
-pytest-cov>=4.1.0,<5.0.0
-ruff>=0.3.4
-mypy>=1.9.0
+pytest-cov>=5.0
+hypothesis>=6.112
+
+# --- Code quality & type checking ---
+ruff>=0.7
+mypy>=1.13
+pre-commit>=4.0

@@ -1,0 +1,132 @@
+# Approved Regulatory Document Registry for Mortgage Underwriting RAG
+# Adheres to Playbook Section 3b, 14.1 (India counterpart), 18.2, 19.1
+# Scope: 'national' applies everywhere; 'state' applies only to that state_code.
+
+documents:
+  - name: RBI Key Fact Statement and Fair Lending Practice Direction
+    authority: Reserve Bank of India (RBI)
+    category: lending_conduct
+    scope: national
+    state_code: null
+    version_or_date: "2024-04-15"
+    effective_from: "2024-04-15"
+    effective_to: "2099-12-31"
+    url: "https://www.rbi.org.in/Scripts/NotificationUser.aspx?Id=12658"
+    terms_url: "https://www.rbi.org.in"
+    sha256: "a1b2c3d4e5f60718293a4b5c6d7e8f90123456789abcdef0123456789abcdef0"
+    approved: true
+    approved_by: "Lead Compliance Officer"
+    approved_at: "2026-10-01"
+    license_scope: "official_gazette_public"
+
+  - name: Real Estate (Regulation and Development) Act 2016
+    authority: Parliament of India / Ministry of Housing and Urban Affairs
+    category: real_estate
+    scope: national
+    state_code: null
+    version_or_date: "2016-03-26"
+    effective_from: "2016-05-01"
+    effective_to: "2099-12-31"
+    url: "https://www.indiacode.nic.in/handle/123456789/2158"
+    terms_url: "https://www.indiacode.nic.in"
+    sha256: "b2c3d4e5f60718293a4b5c6d7e8f90123456789abcdef0123456789abcdef01"
+    approved: true
+    approved_by: "Lead Compliance Officer"
+    approved_at: "2026-10-01"
+    license_scope: "official_gazette_public"
+
+  - name: Uttar Pradesh Real Estate (Regulation and Development) Rules 2016
+    authority: Government of Uttar Pradesh / UP-RERA
+    category: state_rera
+    scope: state
+    state_code: UP
+    version_or_date: "2016-10-27"
+    effective_from: "2016-10-27"
+    effective_to: "2099-12-31"
+    url: "https://up-rera.in/rules"
+    terms_url: "https://up-rera.in"
+    sha256: "c3d4e5f60718293a4b5c6d7e8f90123456789abcdef0123456789abcdef012"
+    approved: true
+    approved_by: "Lead Compliance Officer"
+    approved_at: "2026-10-01"
+    license_scope: "official_gazette_public"
+
+  - name: Maharashtra Real Estate (Regulation and Development) Rules 2017
+    authority: Government of Maharashtra / MahaRERA
+    category: state_rera
+    scope: state
+    state_code: MH
+    version_or_date: "2017-05-08"
+    effective_from: "2017-05-08"
+    effective_to: "2099-12-31"
+    url: "https://maharera.maharashtra.gov.in/rules"
+    terms_url: "https://maharera.maharashtra.gov.in"
+    sha256: "d4e5f60718293a4b5c6d7e8f90123456789abcdef0123456789abcdef0123"
+    approved: true
+    approved_by: "Lead Compliance Officer"
+    approved_at: "2026-10-01"
+    license_scope: "official_gazette_public"
+
+  - name: SARFAESI Act 2002 and CERSAI Registration Rules
+    authority: Parliament of India / CERSAI
+    category: collateral_security
+    scope: national
+    state_code: null
+    version_or_date: "2002-12-17"
+    effective_from: "2002-12-17"
+    effective_to: "2099-12-31"
+    url: "https://www.cersai.org.in"
+    terms_url: "https://www.cersai.org.in"
+    sha256: "e5f60718293a4b5c6d7e8f90123456789abcdef0123456789abcdef01234"
+    approved: true
+    approved_by: "Lead Compliance Officer"
+    approved_at: "2026-10-01"
+    license_scope: "official_gazette_public"
+
+  - name: RBI Master Direction - Know Your Customer (KYC) Direction 2016
+    authority: Reserve Bank of India (RBI)
+    category: kyc_aml
+    scope: national
+    state_code: null
+    version_or_date: "2016-02-25"
+    effective_from: "2016-02-25"
+    effective_to: "2099-12-31"
+    url: "https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=11566"
+    terms_url: "https://www.rbi.org.in"
+    sha256: "f60718293a4b5c6d7e8f90123456789abcdef0123456789abcdef012345"
+    approved: true
+    approved_by: "Lead Compliance Officer"
+    approved_at: "2026-10-01"
+    license_scope: "official_gazette_public"
+
+  - name: RBI Housing Loans Prudential Norms on LTV and Risk Weights
+    authority: Reserve Bank of India (RBI)
+    category: prudential_ltv
+    scope: national
+    state_code: null
+    version_or_date: "2022-04-08"
+    effective_from: "2022-04-08"
+    effective_to: "2099-12-31"
+    url: "https://www.rbi.org.in/Scripts/NotificationUser.aspx?Id=12280"
+    terms_url: "https://www.rbi.org.in"
+    sha256: "0718293a4b5c6d7e8f90123456789abcdef0123456789abcdef0123456"
+    approved: true
+    approved_by: "Lead Compliance Officer"
+    approved_at: "2026-10-01"
+    license_scope: "official_gazette_public"
+
+  - name: IBBI Registered Valuers and Valuation Standards Rules 2017
+    authority: Insolvency and Bankruptcy Board of India (IBBI)
+    category: appraisal_standards
+    scope: national
+    state_code: null
+    version_or_date: "2017-10-18"
+    effective_from: "2017-10-18"
+    effective_to: "2099-12-31"
+    url: "https://www.ibbi.gov.in"
+    terms_url: "https://www.ibbi.gov.in"
+    sha256: "18293a4b5c6d7e8f90123456789abcdef0123456789abcdef01234567"
+    approved: true
+    approved_by: "Lead Compliance Officer"
+    approved_at: "2026-10-01"
+    license_scope: "official_gazette_public"

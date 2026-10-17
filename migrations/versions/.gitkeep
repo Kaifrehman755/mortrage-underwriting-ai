@@ -1,0 +1,7 @@
+# Placeholder so the Alembic ``versions`` directory exists in version control.
+#
+# F-12: the directory must exist before ``alembic revision`` can write a revision file.
+# The initial revision itself is intentionally NOT created here: generating and testing it
+# requires a live PostGIS database (autogenerate + ``alembic upgrade head`` /
+# ``alembic downgrade base``), which is outside the authorised verification scope.
+# Run ``python scripts/check_migrations.py`` to see the remaining work.

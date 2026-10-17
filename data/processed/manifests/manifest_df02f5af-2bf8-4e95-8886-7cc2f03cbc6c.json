@@ -1,0 +1,14 @@
+{
+  "run_id": "df02f5af-2bf8-4e95-8886-7cc2f03cbc6c",
+  "source_id": "fff87b0c-b0e9-5af8-868d-fd3abeb3851b",
+  "started_at": "2026-10-17T01:30:08.224696Z",
+  "finished_at": "2026-10-17T01:30:08.224696Z",
+  "build_version": "1.0.0",
+  "source_snapshot_hash": "fdd2ab821967c388e53c4baba9e7d66bd8d35feae339a5f515bfbad526581f4f",
+  "rows_received": 12,
+  "rows_accepted": 12,
+  "rows_quarantined": 0,
+  "rows_duplicate": 0,
+  "rows_rejected": 0,
+  "error_summary": null
+}

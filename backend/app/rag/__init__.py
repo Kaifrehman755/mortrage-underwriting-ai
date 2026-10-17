@@ -5,6 +5,8 @@ from app.rag.embeddings import EmbeddingService
 from app.rag.ingestion import DocumentIngestionPipeline
 from app.rag.reranker import CrossEncoderReranker
 from app.rag.retriever import GuidelineRetriever
+from app.rag.schemas import EvidenceItem, RegChunk, RegDocument, RetrievalQuery
+from app.rag.seed_corpus import load_seed_corpus
 from app.rag.vector_store import VectorStoreManager
 
 __all__ = [
@@ -14,4 +16,9 @@ __all__ = [
     "VectorStoreManager",
     "GuidelineRetriever",
     "CrossEncoderReranker",
+    "RegDocument",
+    "RegChunk",
+    "EvidenceItem",
+    "RetrievalQuery",
+    "load_seed_corpus",
 ]

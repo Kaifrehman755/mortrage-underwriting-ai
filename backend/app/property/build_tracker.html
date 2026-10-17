@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Member 4 build tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f5f6f8;--card:#fff;--fg:#17202a;--mut:#5b6673;--line:#c9d0d8;--done:#0f766e;--donebg:#d9f1ee;--doing:#b45309;--doingbg:#fdecd2;--accent:#1d4ed8}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10151b;--card:#18202a;--fg:#e8edf2;--mut:#9aa6b2;--line:#34404d;--done:#4fd1c0;--donebg:#12332f;--doing:#f6ad55;--doingbg:#3a2a12;--accent:#7aa2ff}}
+:root[data-theme="dark"]{--bg:#10151b;--card:#18202a;--fg:#e8edf2;--mut:#9aa6b2;--line:#34404d;--done:#4fd1c0;--donebg:#12332f;--doing:#f6ad55;--doingbg:#3a2a12;--accent:#7aa2ff}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*:before,*:after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 "IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:1080px;margin:0 auto;padding:20px 16px 40px}
+h1{font-size:24px;margin:0 0 2px;font-weight:600}
+h2{font-size:17px;margin:28px 0 8px;font-weight:600}
+p{margin:0}.mut{color:var(--mut)}
+.top{display:flex;gap:16px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap}
+.bar{height:8px;background:var(--line);border-radius:4px;overflow:hidden;margin:10px 0 6px}
+.bar i{display:block;height:100%;background:var(--done);width:0;transition:width .25s}
+button{font:inherit;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:6px 12px;cursor:pointer}
+button:focus-visible,g[tabindex]:focus-visible rect{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:8px;margin-top:12px}
+svg{display:block;min-width:900px;width:100%;height:auto}
+.node rect{fill:var(--card);stroke:var(--line);stroke-width:1.2}
+.node.s1 rect{fill:var(--doingbg);stroke:var(--doing)}
+.node.s2 rect{fill:var(--donebg);stroke:var(--done)}
+.node.sel rect{stroke:var(--accent);stroke-width:2.5}
+.node{cursor:pointer}
+.node text{fill:var(--fg);font-size:11.5px}
+.node .st{fill:var(--mut);font-size:10.5px}
+.edge{fill:none;stroke:var(--line);stroke-width:1.3}.edge.on{stroke:var(--done);stroke-width:1.8}
+.lane{fill:var(--mut);font-size:12px;font-weight:500}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin-top:12px}
+.panel h3{margin:0 0 4px;font-size:16px}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.row button[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.tw{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:8px}
+table{border-collapse:collapse;width:100%;min-width:640px}
+th,td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}th{font-weight:600}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px}
+ul{margin:6px 0 0;padding-left:20px}
+</style>
+</head>
+<body>
+<main>
+<div class="top">
+  <div><h1>Member 4 build tracker</h1><p class="mut">Property valuation, compliance and RAG. India pilot, Lucknow.</p></div>
+  <button id="reset">Reset progress</button>
+</div>
+<div class="bar" aria-hidden="true"><i id="fill"></i></div>
+<p id="sum" class="mut"></p>
+
+<div class="wrap"><svg id="g" viewBox="0 0 1024 760" role="group" aria-label="Dependency graph. Select a step to see details."></svg></div>
+
+<div class="panel" id="det" aria-live="polite"></div>
+
+<h2>Ready to start now</h2>
+<div class="panel" id="ready"></div>
+
+<h2>Standard procedures</h2>
+<div class="panel"><p class="mut" style="margin-bottom:6px">Full steps are in section 16 of the playbook doc.</p><ul style="margin:0"><li>SOP-1 Set up the environment</li><li>SOP-2 Approve and register a data source</li><li>SOP-3 Ingest or update a regulatory document</li><li>SOP-4 Collect property data (bronze)</li><li>SOP-5 Clean and promote to the database, with quality gates</li><li>SOP-6 Add or change a compliance rule</li><li>SOP-7 Handle a loan case (loan officer)</li><li>SOP-8 Human review and escalation</li><li>SOP-9 Failures and incidents</li><li>SOP-10 Onboard a new state</li><li>SOP-11 Scheduled upkeep</li><li>SOP-12 Release and definition-of-done check</li><li>SOP-13 Privacy and security</li></ul></div>
+
+<h2>Loan officer commands</h2>
+<p class="mut" style="margin-bottom:8px">Loan officers read and request. They cannot edit estimates or flags, and cannot approve a case with an open flag.</p>
+<div class="tw"><table id="cmds"></table></div>
+<ul class="mut">
+  <li>Every command writes an audit event and returns structured output plus a short summary.</li>
+  <li>Low confidence, abstain, empty retrieval or provider failure always sets human review.</li>
+  <li>Wording is potential issue for review, never a legal conclusion.</li>
+</ul>
+</main>
+
+<script>
+var NODES=[
+['s1','Registry and|circle rates',0,0,[],'Collect registration data and guideline values per state, only after the source passes the approval checklist (section 18.2).','Source approved and terms recorded in data_source.'],
+['s2','UP-RERA|projects',0,1,[],'Collect registered project and unit area data.','Rows saved in bronze with source and fetch date.'],
+['s3','RBI HPI (18 cities)|and NHB Residex',0,2,[],'Download RBI House Price Index series (Lucknow is covered) for time adjustment. Treat NHB Residex as unverified. City-level indicator only.','Index loaded in market_indicator with source and period.'],
+['s4','Lender data|(optional, later)',0,3,[],'Only if a lender later provides data and its owner gives permission. Never fake or guess it.','Owner permission in writing; otherwise skip.'],
+['s5','RBI, NHB, RERA,|SARFAESI texts',0,4.4,[],'Download authoritative texts; record version and date; hash each file.','Every document has url, version or date, sha256.'],
+['jur','Jurisdiction pack|per state (config)',0,5.9,[],'One config file per state: boundary, portals, guideline-value name and unit, land-unit conversions, collector, state rules. Leave unknowns blank.','Pack complete for the pilot state; no values copied from another state.'],
+['rec','Start here: approval|log and state recon',0,7,[],'Create the approval checklist and log (18.2). Fill one recon row per candidate state (18.5) and decide its data tier.','Checklist file exists; recon table done for 3 or more states.'],
+['c1','Collectors|(CSV, API, manual)',1,1.5,['s1','s2','s3','s4','jur'],'CompProvider interface plus synthetic and CSV providers. Never invent rows.','Provider failure raises an error, not data.'],
+['c2','Regulatory|ingest and chunk',1,4.4,['s5','jur'],'Clean, chunk by section, attach metadata.','20 sampled chunks match their source section.'],
+['raw','Bronze store|(raw_record, MinIO)',2,1.5,['c1'],'Save untouched source records and files.','Re-running the same file adds no duplicates.'],
+['fre','Fingerprints and|source freshness',2,2.9,['c1'],'Add record_type, record fingerprint, access_mode and per-source last attempt, success and error (section 19.3). Set refresh interval per source.','Duplicate load rejected; stale sources visible.'],
+['emb','Embeddings in|pgvector',2,4.4,['c2'],'Embed with bge-small; HNSW and tsvector indexes.','Idempotent upsert by sha256.'],
+['cl','Clean and|normalize',3,1.5,['raw','fre'],'Parse INR prices, area units, BHK, pincode; geocode; reject, dedupe, flag outliers.','Rejects logged with reasons; no silent fixes.'],
+['ret','Hybrid retrieval|and evidence',3,4.4,['emb'],'Vector plus keyword search, optional rerank, EvidenceItem builder.','Gold set of 20 questions: right section in top 5.'],
+['db','Gold tables|(Postgres, PostGIS)',4,1.5,['cl'],'property, comparable_sale, market_indicator, circle_rate.','Distance and price per sq ft computed in SQL.'],
+['rul','Compliance rules|(national and state)',4,4.4,['ret','jur'],'KFS, LTV, RERA, TITLE, VAL, KYC, FAIR, DATA rules with config thresholds.','Each rule: pass, fail, missing data, empty retrieval tests.'],
+['val','Valuation engine|and property agent',5,1.5,['db'],'Select comps, time-adjust, weighted median, bootstrap interval, abstain rules.','Abstains under 3 comps; backtest error reported.'],
+['cag','Compliance|agent',5,4.4,['rul'],'Wrap rules; write findings to shared state; emit audit events.','Finding without evidence is rejected.'],
+['gate','Guardrail gate|and shared state',6,2.9,['val','cag'],'Combine outputs; set needs_human on low confidence or open flags.','Facts, estimate, evidence kept in separate fields.'],
+['lo','Loan officer|commands',7,2.9,['gate'],'Implement /intake, /valuate, /comps, /market, /compliance, /evidence, /missing, /explain, /escalate.','Roles enforced; every command audited.'],
+['qa','Release checks|(Definition of Done)',7,1.2,['gate'],'Run SOP-12: all invariant tests, migration rollback, versions recorded, demo cases for healthy, abstain and outage.','Team lead signs the release note.'],
+['onb','Onboard next|state (SOP-10)',7,4.4,['gate'],'Follow the 13-step state checklist: pack, sources, state rules, collector, backtest, isolation test, dry run, pilot month.','Team lead signs go-live; state status is live.']
+];
+var CMDS=[
+['/intake <address> --type --area --basis --price-quoted','Loan officer','Create the case and normalize the subject property'],
+['/valuate <case_id>','Loan officer','Estimate with interval, or an abstain reason'],
+['/comps <case_id> --radius 2km --months 12','Loan officer','Comparables with price type, area basis, distance, price per sq ft'],
+['/market <locality>','Loan officer','Market indicators with source and period'],
+['/compliance <case_id>','Loan officer','Run rules; status, severity, requirement, evidence'],
+['/evidence <finding_id>','Loan officer','Source, version or date, section or page, snippet'],
+['/missing <case_id>','Loan officer','Missing documents and fields'],
+['/explain <case_id>','Loan officer','Plain-language summary; changes nothing'],
+['/escalate <case_id> --reason','Loan officer','Send the case to a human reviewer'],
+['/review <case_id> --decision --note','Compliance reviewer','Record the human decision'],
+['/approve <case_id>','Compliance reviewer','Only when no high-severity finding is open'],
+['/sources','Admin','Approved sources, versions, last ingest date']
+];
+var LABEL=['To do','Doing','Done'],KEY='m4tracker_v1',st={},sel='c1';
+var byId={};NODES.forEach(function(n){byId[n[0]]=n});
+var defaultCompleted={'jur':2,'c1':2,'cl':2,'val':2,'gate':2,'lo':2};
+try{st=Object.assign({},defaultCompleted,JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(e){st=defaultCompleted}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}}
+function S(id){return st[id]||0}
+var NS='http://www.w3.org/2000/svg',g=document.getElementById('g'),W=112,H=60;
+function X(c){return 14+c*126}function Y(r){return 34+r*92}
+function mk(t,a,tx){var e=document.createElementNS(NS,t);for(var k in a)e.setAttribute(k,a[k]);if(tx!==undefined)e.textContent=tx;return e}
+function drawGraph(){
+  g.textContent='';
+  [['Sources',0],['Collect',1],['Store',2],['Process',3],['Database',4],['Engines',5],['Control',6],['Use',7]].forEach(function(l){g.appendChild(mk('text',{x:X(l[1]),y:20,class:'lane'},l[0]))});
+  NODES.forEach(function(n){n[4].forEach(function(d){
+    var a=byId[d],x1=X(a[2])+W,y1=Y(a[3])+H/2,x2=X(n[2]),y2=Y(n[3])+H/2,m=(x1+x2)/2;
+    g.appendChild(mk('path',{d:'M'+x1+' '+y1+' C'+m+' '+y1+' '+m+' '+y2+' '+x2+' '+y2,class:'edge'+(S(d)==2?' on':'')}))})});
+  NODES.forEach(function(n){
+    var s=S(n[0]),gr=mk('g',{class:'node s'+s+(n[0]==sel?' sel':''),tabindex:0,role:'button','aria-label':n[1].replace('|',' ')+', '+LABEL[s]});
+    gr.appendChild(mk('rect',{x:X(n[2]),y:Y(n[3]),width:W,height:H,rx:7}));
+    var ls=n[1].split('|');
+    ls.forEach(function(t,i){gr.appendChild(mk('text',{x:X(n[2])+8,y:Y(n[3])+19+i*14},t))});
+    gr.appendChild(mk('text',{x:X(n[2])+8,y:Y(n[3])+H-8,class:'st'},(s==2?'Done':s==1?'Doing':'To do')));
+    gr.onclick=function(){sel=n[0];render()};
+    gr.onkeydown=function(e){if(e.key=='Enter'||e.key==' '){e.preventDefault();sel=n[0];render()}};
+    g.appendChild(gr)})}
+function detail(){
+  var n=byId[sel],s=S(sel),el=document.getElementById('det');
+  el.innerHTML='<h3></h3><p></p><p class="mut" style="margin-top:6px"></p><div class="row"></div>';
+  el.children[0].textContent=n[1].replace('|',' ');
+  el.children[1].textContent=n[5];
+  el.children[2].textContent='Done when: '+n[6]+(n[4].length?' Needs: '+n[4].map(function(d){return byId[d][1].replace('|',' ')}).join(', ')+'.':'');
+  LABEL.forEach(function(l,i){var b=document.createElement('button');b.textContent=l;b.setAttribute('aria-pressed',s==i);b.onclick=function(){st[sel]=i;save();render()};el.children[3].appendChild(b)})}
+function ready(){
+  var r=NODES.filter(function(n){return S(n[0])<2&&n[4].every(function(d){return S(d)==2})}),el=document.getElementById('ready');
+  el.textContent='';
+  if(!r.length){el.textContent='Everything is done.';return}
+  var u=document.createElement('ul');u.style.margin='0';
+  r.forEach(function(n){var li=document.createElement('li');li.textContent=n[1].replace('|',' ')+': '+n[5];u.appendChild(li)});
+  el.appendChild(u)}
+function render(){
+  var d=NODES.filter(function(n){return S(n[0])==2}).length,p=NODES.filter(function(n){return S(n[0])==1}).length;
+  document.getElementById('fill').style.width=(100*d/NODES.length)+'%';
+  document.getElementById('sum').textContent=d+' of '+NODES.length+' steps done, '+p+' in progress.';
+  drawGraph();detail();ready()}
+document.getElementById('reset').onclick=function(){if(confirm('Reset all progress?')){st={};save();render()}};
+(function(){var t=document.getElementById('cmds');
+  t.innerHTML='<thead><tr><th>Command</th><th>Who</th><th>What it does</th><th></th></tr></thead>';
+  var b=document.createElement('tbody');
+  CMDS.forEach(function(c){var tr=document.createElement('tr');
+    ['c','w','d'].forEach(function(k,i){var td=document.createElement('td');if(i==0){var cd=document.createElement('code');cd.textContent=c[0];td.appendChild(cd)}else td.textContent=c[i];tr.appendChild(td)});
+    var td=document.createElement('td'),bt=document.createElement('button');bt.textContent='Copy';
+    bt.onclick=function(){try{navigator.clipboard.writeText(c[0].split(' <')[0]).then(function(){bt.textContent='Copied';setTimeout(function(){bt.textContent='Copy'},1200)})}catch(e){}};
+    td.appendChild(bt);tr.appendChild(td);b.appendChild(tr)});
+  t.appendChild(b)})();
+render();
+</script>
+</body>
+</html>
