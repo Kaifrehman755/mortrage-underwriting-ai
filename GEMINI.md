@@ -206,7 +206,7 @@ Recommended fields:
 - `property_category`
 - `rate_raw`
 - `rate_unit_raw`
-- `rate_inr_normalized` (nullable; contract/schema exposed as `rate_inr_per_sqft` per F-17, INR per square foot; physical DB column maintains historical `rate_inr_normalized` name)
+- `rate_inr_per_sqft` (nullable; INR per square foot — never per square metre; renamed from `rate_inr_normalized` under the ratified F-17/F-12 migration)
 - `effective_from`
 - `effective_to`
 - `published_at`

@@ -1,6 +1,6 @@
 # API Access Policy (India property-valuation backend)
 
-**Status:** Documented Phase-0 decision (remediation F-05).
+**Status:** **Ratified** — owner sign-off (Phase-2 remediation F-05). Authoritative for the current API surface.
 **Scope:** The FastAPI surface mounted at `API_PREFIX` (`/api/v1`), see `backend/app/api/router.py`.
 
 This document is the authoritative, explicit decision about which endpoints are public and
