@@ -1,6 +1,5 @@
 """Alembic migrations environment configuration with PostGIS and GeoAlchemy2 support."""
 
-import os
 import sys
 from logging.config import fileConfig
 from pathlib import Path
@@ -29,6 +28,33 @@ if config.config_file_name is not None:
 # add your model's MetaData object here
 # for 'autogenerate' support
 target_metadata = Base.metadata
+
+# The PostGIS extension installs its own tables (``spatial_ref_sys``, the ``tiger`` geocoder
+# schema and the ``topology`` schema). They are not part of the application metadata, so without
+# an explicit filter alembic autogenerate proposes *dropping* them. F-12: never let the
+# application migration manage PostGIS internals.
+POSTGIS_MANAGED_TABLES = frozenset(
+    {"spatial_ref_sys", "geography_columns", "geometry_columns"}
+)
+POSTGIS_MANAGED_SCHEMAS = frozenset({"tiger", "topology"})
+
+
+def include_object(
+    obj: object,
+    name: str,
+    type_: str,
+    reflected: bool,
+    compare_to: object,
+) -> bool:
+    """Exclude PostGIS-managed objects from autogenerate comparison (F-12)."""
+    if type_ == "table":
+        if name in POSTGIS_MANAGED_TABLES:
+            return False
+        if getattr(obj, "schema", None) in POSTGIS_MANAGED_SCHEMAS:
+            return False
+    # Indexes/constraints carry their owning table's schema.
+    table_schema = getattr(getattr(obj, "table", None), "schema", None)
+    return table_schema not in POSTGIS_MANAGED_SCHEMAS
 
 
 def get_sync_database_url() -> str:
@@ -59,6 +85,7 @@ def run_migrations_offline() -> None:
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
         include_schemas=True,
+        include_object=include_object,
     )
 
     with context.begin_transaction():
@@ -85,6 +112,7 @@ def run_migrations_online() -> None:
             connection=connection,
             target_metadata=target_metadata,
             include_schemas=True,
+            include_object=include_object,
         )
 
         with context.begin_transaction():

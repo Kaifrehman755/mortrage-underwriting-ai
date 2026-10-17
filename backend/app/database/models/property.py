@@ -6,22 +6,21 @@ Enforces GEMINI.md Section 4.2:
 - Unique constraint on (source_id, source_record_id).
 """
 
-from datetime import UTC, datetime
+from datetime import datetime
 from typing import Any
 from uuid import UUID, uuid4
 
 from geoalchemy2 import Geometry
 from sqlalchemy import (
+    JSON,
     DateTime,
     Float,
     ForeignKey,
     Index,
     Integer,
-    JSON,
     String,
     Text,
     UniqueConstraint,
-    func,
 )
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column
@@ -60,9 +59,12 @@ class PropertyRecord(Base, TimestampMixin):
     latitude: Mapped[float | None] = mapped_column(Float, nullable=True)
     longitude: Mapped[float | None] = mapped_column(Float, nullable=True)
 
-    # PostGIS spatial point (EPSG 4326 - WGS 84)
+    # PostGIS spatial point (EPSG 4326 - WGS 84).
+    # F-12: the spatial index is managed explicitly (see ``__table_args__``) so Alembic owns its
+    # creation; GeoAlchemy2's automatic spatial index would otherwise be created twice (once by
+    # the ``CREATE TABLE`` DDL and once by the generated ``create_index``).
     location = mapped_column(
-        Geometry(geometry_type="POINT", srid=4326), nullable=True
+        Geometry(geometry_type="POINT", srid=4326, spatial_index=False), nullable=True
     )
 
     source_authenticity_status: Mapped[str] = mapped_column(
