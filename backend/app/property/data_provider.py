@@ -1,6 +1,19 @@
-"""Property data provider adapter interface (Reserved for Phase 1+)."""
+"""Property data provider adapter interface.
 
+Maintains backward-compatibility while exposing the core CompProvider abstractions.
+"""
 
-class PropertyDataProvider:
-    """Pluggable adapter interface for property records, public tax data, and mapping services."""
-    pass
+from app.property.provider import CompProvider, ProviderUnavailable
+from app.property.providers.assessor_csv import AssessorCsvProvider
+from app.property.providers.synthetic import SyntheticProvider
+
+# Backward compatible alias
+PropertyDataProvider = CompProvider
+
+__all__ = [
+    "PropertyDataProvider",
+    "CompProvider",
+    "ProviderUnavailable",
+    "SyntheticProvider",
+    "AssessorCsvProvider",
+]
