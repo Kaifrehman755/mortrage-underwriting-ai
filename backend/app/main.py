@@ -40,13 +40,14 @@ def create_application() -> FastAPI:
         lifespan=lifespan,
     )
 
-    # Register CORS Middleware
+    # Register CORS Middleware (F-06: wildcard origins are rejected in Settings when
+    # credentials are enabled, so this cannot silently widen to any origin).
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=settings.CORS_ORIGINS if isinstance(settings.CORS_ORIGINS, list) else [settings.CORS_ORIGINS],
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
+        allow_origins=list(settings.CORS_ORIGINS),
+        allow_credentials=settings.CORS_ALLOW_CREDENTIALS,
+        allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+        allow_headers=["Authorization", "Content-Type", "X-API-Key", "X-Request-ID"],
     )
 
     # Register Request Tracking & Performance Middleware

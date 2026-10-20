@@ -72,3 +72,10 @@ storage/reports/*
 *~
 .DS_Store
 Thumbs.db
+opencode.jsonc
+
+
+.clinerules
+PROGRESS.md
+
+/architecture/

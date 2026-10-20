@@ -63,6 +63,9 @@ Persistence & Storage (PostgreSQL / Local File System Boundaries)
 
 Detailed architectural blueprints are documented in [`docs/architecture/overview.md`](docs/architecture/overview.md).
 
+API access control — which endpoints are public and which require authentication — is
+documented (and ratified) in [`docs/security/access_policy.md`](docs/security/access_policy.md).
+
 ---
 
 ## 5. Folder Structure

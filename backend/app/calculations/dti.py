@@ -45,3 +45,20 @@ def calculate_dti(
         "status": "calculated",
         "warnings": warnings,
     }
+
+
+def calculate_back_end_dti(
+    gross_monthly_income: Decimal,
+    total_monthly_debt: Decimal,
+) -> dict[str, Any]:
+    """Calculate back-end DTI ratio."""
+    return calculate_dti(gross_monthly_income, total_monthly_debt)
+
+
+def calculate_front_end_dti(
+    gross_monthly_income: Decimal,
+    housing_expense: Decimal,
+) -> dict[str, Any]:
+    """Calculate front-end DTI ratio."""
+    return calculate_dti(gross_monthly_income, housing_expense)
+

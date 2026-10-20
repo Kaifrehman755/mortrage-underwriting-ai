@@ -1,0 +1,24 @@
+{
+  "series_id": "rbi_hpi_urban_lucknow",
+  "title": "RBI House Price Index (HPI) - Lucknow (UNVERIFIED synthetic dev fixture)",
+  "index_basis": "city",
+  "base_year": "TODO-VERIFY",
+  "units": "index points (base year = 100). Base year itself is unverified.",
+  "source_name": "TODO-VERIFY: Reserve Bank of India, House Price Index (published via the DBIE portal data.rbi.org.in)",
+  "source_url": "TODO-VERIFY",
+  "publication_date": "TODO-VERIFY",
+  "retrieved_at": "TODO-VERIFY",
+  "verification_status": "unverified",
+  "provenance_note": "UNVERIFIED DEV FIXTURE (F-02). These quarterly values were previously hard-coded as unprovenanced constants inside the valuation engine. They have NOT been confirmed against the RBI DBIE portal and must NEVER be used for a production time adjustment. To promote this series: obtain an authorized DBIE export, record its SHA-256 and the exact source_url/publication_date, update each value, then set verification_status to \"verified\". Until then the valuation engine abstains from the HPI time adjustment rather than inventing a value.",
+  "series": {
+    "2024-Q3": 100.0,
+    "2024-Q4": 102.5,
+    "2025-Q1": 104.8,
+    "2025-Q2": 107.0,
+    "2025-Q3": 109.2,
+    "2025-Q4": 111.5,
+    "2026-Q1": 113.8,
+    "2026-Q2": 116.0,
+    "2026-Q3": 118.2
+  }
+}
