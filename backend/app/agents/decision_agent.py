@@ -5,6 +5,7 @@ Combines assessment findings and routes cases for a final decision
 or human review. Final lending criteria must come from an approved policy.
 """
 
+import math
 from typing import Any
 
 
@@ -14,7 +15,7 @@ class DecisionAgent:
     VALID_POLICY_OUTCOMES = {"pass", "fail", "review"}
 
     def evaluate(self, assessment: dict[str, Any]) -> dict[str, Any]:
-        """Evaluate an assessment and return a structured recommendation."""
+        """Validate an assessment and return a structured recommendation."""
 
         required_fields = [
             "dti_percentage",
@@ -31,7 +32,8 @@ class DecisionAgent:
         ]
 
         missing_fields = [
-            field for field in required_fields
+            field
+            for field in required_fields
             if field not in assessment or assessment[field] is None
         ]
 
@@ -47,11 +49,89 @@ class DecisionAgent:
 
         policy_outcome = assessment["policy_outcome"]
 
-        if policy_outcome not in self.VALID_POLICY_OUTCOMES:
+        if (
+            not isinstance(policy_outcome, str)
+            or policy_outcome not in self.VALID_POLICY_OUTCOMES
+        ):
             raise ValueError(
                 "policy_outcome must be 'pass', 'fail', or 'review'."
             )
 
+        # Validate financial metrics before making a decision.
+        invalid_reasons: list[str] = []
+
+        numeric_fields = [
+            "dti_percentage",
+            "ltv",
+            "cltv",
+            "dscr",
+            "risk_score",
+        ]
+
+        for field in numeric_fields:
+            value = assessment[field]
+
+            if isinstance(value, bool) or not isinstance(value, (int, float)):
+                invalid_reasons.append(f"{field} must be numeric.")
+                continue
+
+            try:
+                is_finite = math.isfinite(value)
+            except OverflowError:
+                is_finite = False
+
+            if not is_finite or value < 0:
+                invalid_reasons.append(
+                    f"{field} must be finite and non-negative."
+                )
+
+        risk_score = assessment["risk_score"]
+
+        if (
+            isinstance(risk_score, (int, float))
+            and not isinstance(risk_score, bool)
+            and risk_score > 100
+        ):
+            invalid_reasons.append("risk_score must not exceed 100.")
+
+        fico = assessment["fico_score"]
+
+        if isinstance(fico, bool) or not isinstance(fico, int):
+            invalid_reasons.append("fico_score must be an integer.")
+        elif not 300 <= fico <= 850:
+            invalid_reasons.append(
+                "fico_score must be between 300 and 850."
+            )
+
+        if invalid_reasons:
+            return {
+                "agent": "decision",
+                "recommendation": "SUSPEND",
+                "requires_human_review": True,
+                "reasons": invalid_reasons,
+            }
+
+        # Validate confidence separately.
+        confidence = assessment["confidence"]
+
+        try:
+            confidence_is_finite = (
+                not isinstance(confidence, bool)
+                and isinstance(confidence, (int, float))
+                and math.isfinite(confidence)
+            )
+        except OverflowError:
+            confidence_is_finite = False
+
+        if (
+            not confidence_is_finite
+            or not 0 <= confidence <= 1
+        ):
+            raise ValueError(
+                "confidence must be a number between 0 and 1."
+            )
+
+        # Identify conditions requiring human review.
         review_reasons: list[str] = []
 
         if assessment["documents_complete"] is not True:
@@ -66,15 +146,6 @@ class DecisionAgent:
             review_reasons.append(
                 "Assessment data contains conflicts or unresolved inconsistencies."
             )
-
-        confidence = assessment["confidence"]
-
-        if (
-            isinstance(confidence, bool)
-            or not isinstance(confidence, (int, float))
-            or not 0 <= confidence <= 1
-        ):
-            raise ValueError("confidence must be a number between 0 and 1.")
 
         if confidence < 0.80:
             review_reasons.append(

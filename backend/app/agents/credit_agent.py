@@ -1,9 +1,3 @@
-
-"""Credit Analysis Agent.
-
-Responsible for coordinating borrower credit-score analysis.
-"""
-
 from typing import Any
 
 from app.calculations.credit_analysis import calculate_credit_analysis

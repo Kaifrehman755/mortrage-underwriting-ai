@@ -76,3 +76,24 @@ def test_calculate_dscr_negative_debt_service():
             Decimal("100000"),
             Decimal("-1000"),
         )
+
+def test_calculate_dscr_rejects_infinite_income():
+    with pytest.raises(
+        ValueError,
+        match="Net operating income must be finite.",
+    ):
+        calculate_dscr(
+            Decimal("Infinity"),
+            Decimal("100000"),
+        )
+
+
+def test_calculate_dscr_rejects_boolean_debt_service():
+    with pytest.raises(
+        ValueError,
+        match="Annual debt service must be a valid number.",
+    ):
+        calculate_dscr(
+            Decimal("100000"),
+            True,
+        )
