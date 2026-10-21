@@ -76,3 +76,24 @@ def test_calculate_cltv_negative_property_value():
             Decimal("10000"),
             Decimal("-300000"),
         )
+
+
+def test_calculate_cltv_rejects_nan_primary_loan():
+    with pytest.raises(ValueError, match="Primary loan must be finite."):
+        calculate_cltv(
+            Decimal("NaN"),
+            Decimal("10000"),
+            Decimal("300000"),
+        )
+
+
+def test_calculate_cltv_rejects_boolean_property_value():
+    with pytest.raises(
+        ValueError,
+        match="Property value must be a valid number.",
+    ):
+        calculate_cltv(
+            Decimal("200000"),
+            Decimal("10000"),
+            True,
+        )

@@ -1,4 +1,5 @@
-"""Conditional edge routing for LangGraph underwriting workflows (Reserved for Phase 1+)."""
+
+"""Conditional edge routing for mortgage underwriting workflows."""
 
 from typing import Literal
 
@@ -8,5 +9,9 @@ from app.workflows.state import UnderwritingState
 def should_route_to_human_review(
     state: UnderwritingState,
 ) -> Literal["human_review", "finalize_decision"]:
-    """Evaluate whether underwriting state requires manual underwriter intervention."""
-    return "human_review" if state.get("human_review_required", False) else "finalize_decision"
+    """Route uncertain or incomplete cases to human review."""
+
+    if state.get("human_review_required") is False:
+        return "finalize_decision"
+
+    return "human_review"

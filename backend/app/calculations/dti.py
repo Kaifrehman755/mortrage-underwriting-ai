@@ -1,17 +1,37 @@
-"""Deterministic Debt-to-Income (DTI) calculations (Reserved for Phase 1+)."""
+
+"""Deterministic Debt-to-Income (DTI) calculations."""
 
 from decimal import Decimal
 from typing import Any
+
+from app.calculations.validation import to_finite_decimal
 
 
 def calculate_dti(
     gross_monthly_income: Decimal,
     total_monthly_debt: Decimal,
 ) -> dict[str, Any]:
-    
-    warnings: list[str] = []
+    """Calculate DTI as a percentage of gross monthly income."""
 
-    # Validate gross monthly income
+    original_income = gross_monthly_income
+    original_debt = total_monthly_debt
+
+    try:
+        gross_monthly_income = to_finite_decimal(
+            gross_monthly_income, "Gross monthly income"
+        )
+        total_monthly_debt = to_finite_decimal(
+            total_monthly_debt, "Total monthly debt"
+        )
+    except ValueError as exc:
+        return {
+            "gross_monthly_income": original_income,
+            "total_monthly_debt": original_debt,
+            "dti_percentage": None,
+            "status": "invalid",
+            "warnings": [str(exc)],
+        }
+
     if gross_monthly_income <= 0:
         return {
             "gross_monthly_income": gross_monthly_income,
@@ -23,7 +43,6 @@ def calculate_dti(
             ],
         }
 
-    # Validate total monthly debt
     if total_monthly_debt < 0:
         return {
             "gross_monthly_income": gross_monthly_income,
@@ -35,13 +54,14 @@ def calculate_dti(
             ],
         }
 
-    # Calculate DTI
-    dti = (total_monthly_debt / gross_monthly_income) * Decimal("100")
+    dti = (
+        total_monthly_debt / gross_monthly_income
+    ) * Decimal("100")
 
     return {
         "gross_monthly_income": gross_monthly_income,
         "total_monthly_debt": total_monthly_debt,
         "dti_percentage": dti,
         "status": "calculated",
-        "warnings": warnings,
+        "warnings": [],
     }
