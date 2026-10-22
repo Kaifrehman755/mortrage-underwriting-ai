@@ -1,5 +1,10 @@
+
+"""Debt Service Coverage Ratio (DSCR) calculation."""
+
 from decimal import Decimal
 from typing import Any
+
+from app.calculations.validation import to_finite_decimal
 
 
 def calculate_dscr(
@@ -7,12 +12,17 @@ def calculate_dscr(
     annual_debt_service: Decimal,
 ) -> dict[str, Any]:
     """
-    Calculate the Debt Service Coverage Ratio (DSCR).
+    Calculate the Debt Service Coverage Ratio.
 
     Formula:
         DSCR = Net Operating Income / Annual Debt Service
     """
-    warnings: list[str] = []
+    net_operating_income = to_finite_decimal(
+        net_operating_income, "Net operating income"
+    )
+    annual_debt_service = to_finite_decimal(
+        annual_debt_service, "Annual debt service"
+    )
 
     if net_operating_income < 0:
         raise ValueError("Net operating income cannot be negative.")
@@ -25,10 +35,13 @@ def calculate_dscr(
 
     dscr = net_operating_income / annual_debt_service
 
+    warnings: list[str] = []
     if dscr < Decimal("1.0"):
         warnings.append("DSCR is below 1.0; income does not cover debt service.")
     elif dscr < Decimal("1.25"):
-        warnings.append("DSCR is below the illustrative 1.25 underwriting benchmark.")
+        warnings.append(
+            "DSCR is below the illustrative 1.25 underwriting benchmark."
+        )
 
     return {
         "net_operating_income": net_operating_income,

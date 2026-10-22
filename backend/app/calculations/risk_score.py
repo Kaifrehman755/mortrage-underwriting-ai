@@ -3,6 +3,14 @@
 import math
 
 
+def _is_finite_number(value: int | float) -> bool:
+    """Check finiteness without leaking overflow errors for huge integers."""
+    try:
+        return math.isfinite(value)
+    except OverflowError:
+        return False
+
+
 def compute_composite_risk_score(
     dti: float,
     ltv: float,
@@ -26,13 +34,13 @@ def compute_composite_risk_score(
     if isinstance(dti, bool) or not isinstance(dti, (int, float)):
         raise ValueError("DTI must be a numeric percentage.")
 
-    if not math.isfinite(dti) or dti < 0:
+    if not _is_finite_number(dti) or dti < 0:
         raise ValueError("DTI must be a finite, non-negative percentage.")
 
     if isinstance(ltv, bool) or not isinstance(ltv, (int, float)):
         raise ValueError("LTV must be a numeric percentage.")
 
-    if not math.isfinite(ltv) or ltv < 0:
+    if not _is_finite_number(ltv) or ltv < 0:
         raise ValueError("LTV must be a finite, non-negative percentage.")
 
     if isinstance(fico, bool) or not isinstance(fico, int):
@@ -47,7 +55,7 @@ def compute_composite_risk_score(
     ):
         raise ValueError("Reserves must be numeric.")
 
-    if not math.isfinite(reserves_months) or reserves_months < 0:
+    if not _is_finite_number(reserves_months) or reserves_months < 0:
         raise ValueError("Reserves must be finite and non-negative.")
 
     # DTI risk: maximum 30 points.

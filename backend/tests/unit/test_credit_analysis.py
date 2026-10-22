@@ -62,3 +62,26 @@ def test_credit_analysis_invalid_score_range(score):
 def test_credit_analysis_invalid_score_type(score):
     with pytest.raises(ValueError, match="must be an integer"):
         calculate_credit_analysis(score)
+
+@pytest.mark.parametrize(
+    ("score", "expected_category", "expects_warning"),
+    [
+        (579, "Poor", True),
+        (580, "Fair", True),
+        (619, "Fair", True),
+        (620, "Fair", False),
+        (669, "Fair", False),
+        (670, "Good", False),
+        (739, "Good", False),
+        (740, "Very Good", False),
+        (799, "Very Good", False),
+        (800, "Exceptional", False),
+    ],
+)
+def test_credit_analysis_category_boundaries(
+    score, expected_category, expects_warning
+):
+    result = calculate_credit_analysis(score)
+
+    assert result["credit_category"] == expected_category
+    assert bool(result["warnings"]) is expects_warning

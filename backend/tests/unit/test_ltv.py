@@ -57,3 +57,21 @@ def test_calculate_ltv_negative_property_value():
             Decimal("100000"),
             Decimal("-300000"),
         )
+
+def test_calculate_ltv_rejects_nan_loan_amount():
+    with pytest.raises(ValueError, match="Loan amount must be finite."):
+        calculate_ltv(
+            Decimal("NaN"),
+            Decimal("300000"),
+        )
+
+
+def test_calculate_ltv_rejects_boolean_property_value():
+    with pytest.raises(
+        ValueError,
+        match="Property value must be a valid number.",
+    ):
+        calculate_ltv(
+            Decimal("200000"),
+            True,
+        )

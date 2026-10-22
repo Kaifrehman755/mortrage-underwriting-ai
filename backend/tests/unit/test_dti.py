@@ -51,3 +51,24 @@ def test_dti_with_negative_debt():
 
     assert result["dti_percentage"] is None
     assert result["status"] == "invalid"
+
+def test_dti_rejects_nan_income():
+    result = calculate_dti(
+        gross_monthly_income=Decimal("NaN"),
+        total_monthly_debt=Decimal("2400"),
+    )
+
+    assert result["status"] == "invalid"
+    assert result["dti_percentage"] is None
+    assert "must be finite" in result["warnings"][0]
+
+
+def test_dti_rejects_boolean_income():
+    result = calculate_dti(
+        gross_monthly_income=True,
+        total_monthly_debt=Decimal("2400"),
+    )
+
+    assert result["status"] == "invalid"
+    assert result["dti_percentage"] is None
+    assert "must be a valid number" in result["warnings"][0]
