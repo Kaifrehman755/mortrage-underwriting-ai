@@ -44,7 +44,7 @@ the required scripts/reports, and the documented deviations.
 |---|---|---|
 | `scripts/check_sources.py` | present | Source-readiness checks; `--verify-fixtures` verifies reference-rate + market-index provenance |
 | `scripts/check_migrations.py` | present | Static Alembic readiness (config, canonical ORM target, revisions/heads); reports **Ready: YES** now that the initial revision exists |
-| `scripts/check_database.py` | present | PostGIS config check (static by default) and `--connect` read-only probe |
+| `scripts/check_database.py` | present | PostGIS config check (static by default) and `--connect` read-only probe (now part of `run_verification.py`) |
 | `scripts/validate_dataset.py` | present | Validates on-disk processed rows, manifests and quarantine records |
 | `scripts/build_dataset.py` | present | Gated dataset builder (dry-run by default; fails closed on unapproved sources) |
 | `scripts/run_verification.py` | present | Runs the approved local checks; can write `reports/verification_report.md` |
@@ -59,6 +59,7 @@ Reproduce:
 ./.venv/Scripts/python.exe scripts/validate_dataset.py            # dataset only
 ./.venv/Scripts/python.exe scripts/check_migrations.py            # F-12 readiness
 ./.venv/Scripts/python.exe scripts/check_database.py              # DB config (no connection)
+./.venv/Scripts/python.exe scripts/check_database.py --connect    # live read-only probe
 ./.venv/Scripts/python.exe scripts/build_dataset.py              # dry-run; fails closed (F-03)
 ```
 
@@ -69,8 +70,10 @@ Reproduce:
 * **F-12 (Alembic) — RESOLVED.** The initial revision
   `migrations/versions/e35561efe721_initial_schema.py` now exists (10 `create_table` + 40
   `create_index`; no PostGIS-managed objects). It was generated and exercised against the disposable
-  database `mortgage_underwriting_test` on the local PostGIS container **only** (the live
-  `mortgage_underwriting` database was never touched):
+  database `mortgage_underwriting_test` on the local PostGIS container. On **2026-10-24** the cycle was
+  repeated on a freshly reset test database and the revision was then applied to the local development
+  database `mortgage_underwriting`; `scripts/check_database.py --connect` now reports all 10 expected
+  tables plus PostGIS. No production environment has been migrated.
 
   | Step | Result |
   |---|---|
@@ -89,10 +92,10 @@ Reproduce:
   canonical, gated ingestion refuses them. Consequently `scripts/build_dataset.py` currently reports all
   four states as `BLOCKED` and exits `2`. That is the intended, fail-closed behaviour — the existing
   `data/processed/**` files remain labelled synthetic dev fixtures and are **not** rebuilt.
-* **Not authorised / not run:** dependency vulnerability scan, Docker build, live fetch of government
-  sources (RBI DBIE HPI values were not fetched; the market-index series stays an unverified fixture).
-  The Alembic migration *was* authorised and run, but only against the disposable
-  `mortgage_underwriting_test` database.
+* **Not authorised / not run:** dependency vulnerability scan, Docker image build, live fetch of
+  government sources (RBI DBIE HPI values were not fetched; the market-index series stays an unverified
+  fixture). The Alembic migration was authorised and run against `mortgage_underwriting_test` and the
+  local development database `mortgage_underwriting`; no production database was touched.
 
 ---
 

@@ -44,7 +44,11 @@ RUFF_FILES = [
     "backend/app/property/comps.py",
     "backend/app/property/normalize.py",
     "backend/app/property/market_index.py",
+    "backend/app/calculations/fico.py",
     "backend/app/valuation/__init__.py",
+    "backend/app/valuation/evaluation.py",
+    "backend/app/property/schemas.py",
+    "backend/app/rag/seed_corpus.py",
     "backend/tests/unit/test_f02_market_index.py",
     "backend/tests/unit/test_f03_data_provenance.py",
     "backend/tests/unit/test_f04_circle_rate_quarantine.py",
@@ -59,6 +63,8 @@ RUFF_FILES = [
     "backend/tests/unit/test_f14_error_handling.py",
     "backend/tests/unit/test_f17_unit_semantics.py",
     "backend/tests/unit/test_f18_deliverables.py",
+    "backend/tests/unit/test_fico.py",
+    "backend/tests/integration/test_postgis_persistence.py",
     "scripts/check_sources.py",
     "scripts/check_migrations.py",
     "scripts/check_database.py",
@@ -93,7 +99,7 @@ CHECKS: list[Check] = [
         [PYTHON, "-m", "mypy", "app"],
         BACKEND,
         blocking=False,
-        note="informational: pre-existing type errors outside the remediation scope",
+        note="informational: advisory type checking (currently clean)",
     ),
     Check(
         "data provenance (check_sources --verify-fixtures)",
@@ -113,6 +119,12 @@ CHECKS: list[Check] = [
     ),
     Check("dataset validation (validate_dataset)", [PYTHON, "scripts/validate_dataset.py"], REPO_ROOT),
     Check("database config (check_database)", [PYTHON, "scripts/check_database.py"], REPO_ROOT),
+    Check(
+        "database live probe (check_database --connect)",
+        [PYTHON, "scripts/check_database.py", "--connect"],
+        REPO_ROOT,
+        note="GEMINI.md §15.3: requires a reachable PostgreSQL/PostGIS instance with migrations applied",
+    ),
 ]
 
 
@@ -176,8 +188,8 @@ def write_report(results: list[Result], path: Path) -> None:
     lines.append("")
     if any(not r.check.blocking for r in results):
         lines += [
-            "> `mypy` is informational: the repository has pre-existing type errors outside this",
-            "> remediation's scope, and none are in the files it touched.",
+            "> Non-blocking checks are advisory: they are reported for visibility but do not gate",
+            "> the overall result. Blocking checks must pass.",
             "",
         ]
     for result in results:

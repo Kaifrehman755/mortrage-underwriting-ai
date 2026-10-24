@@ -18,11 +18,14 @@ F-17). F-12 (Alembic revisions) was unblocked by the owner and completed against
 `mortgage_underwriting_test` database. F-13 (RAG) is an out-of-scope documented residual; F-18 is
 partially closed; F-19/F-20 are informational.
 
-Verification at the time of writing: **235 tests collected, 0 failed** (`pytest backend/tests`), ruff
-clean on every remediation file **and** `migrations/`, `mypy app` unchanged at 9 pre-existing errors
-(none in the files this remediation touched), `check_sources.py --verify-fixtures` exit 0,
-`check_migrations.py` **Ready: YES** exit 0, `validate_dataset.py` exit 0, and a tested
-`alembic upgrade head` / `downgrade base` on the disposable database.
+Verification at the time of writing (updated 2026-10-24): **311 tests collected, 0 failed**
+(`pytest backend/tests`), including **5 integration tests executed against a live
+PostgreSQL/PostGIS instance**. `ruff` is clean on every remediation file **and** `migrations/`;
+`mypy app` is now **clean** (0 errors); `check_sources.py --verify-fixtures` exit 0;
+`check_migrations.py` **Ready: YES** exit 0; `validate_dataset.py` exit 0;
+`check_database.py --connect` exit 0 against `mortgage_underwriting` (all 10 expected tables plus
+PostGIS); and `alembic upgrade head` / `downgrade base` / `upgrade head` were re-verified on a
+freshly reset `mortgage_underwriting_test`.
 
 ## 2. Findings disposition
 
@@ -153,5 +156,11 @@ pre-existing agent suite). Full suite: **235 collected, 0 failed**.
 * **Real data**: the reference-rate and market-index datasets remain labelled synthetic dev fixtures.
   They must be replaced by authorised exports (with recorded terms snapshot hashes and a named verifier)
   before any real-world use.
-* The `rate_inr_per_sqft` rename has been applied to the disposable database only; applying it to a real
-  environment requires running the initial revision there (out of scope here).
+* **Live database**: connectivity, PostGIS and the initial revision are now verified against the local
+  Docker instance (`mortgage_underwriting` and a reset `mortgage_underwriting_test`). No production
+  environment has been migrated.
+* **Pre-existing lint debt**: 65 `ruff` findings remain across `backend/app`, `scripts` and
+  `migrations` outside the pinned remediation file list (mostly unused imports and import ordering).
+  They do not affect the verification gate but are worth a dedicated cleanup pass.
+* **`mypy`**: the 5 errors recorded earlier (including the `determine_qualifying_fico` placeholder)
+  have been fixed; `mypy app` is clean. The FICO mid-score rule is now implemented and unit-tested.

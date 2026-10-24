@@ -1,21 +1,24 @@
 # Verification report
 
-Generated: 2026-10-17T10:09:30.339244+00:00
+Generated: 2026-10-24T00:58:24.020176+00:00
 Python: `C:\Users\HP\Documents\mortrage-underwriting-ai\.venv\Scripts\python.exe`
 
 | Check | Blocking | Exit | Status |
 |---|---|---|---|
 | pytest (full suite) | yes | 0 | PASS |
 | ruff (remediation files) | yes | 0 | PASS |
-| mypy (backend app) | no | 1 | INFO |
+| mypy (backend app) | no | 0 | PASS |
 | data provenance (check_sources --verify-fixtures) | yes | 0 | PASS |
 | migration config (check_migrations --config-only) | yes | 0 | PASS |
 | migration readiness (check_migrations) | yes | 0 | PASS |
 | dataset validation (validate_dataset) | yes | 0 | PASS |
 | database config (check_database) | yes | 0 | PASS |
+| database live probe (check_database --connect) | yes | 0 | PASS* |
 
-> `mypy` is informational: the repository has pre-existing type errors outside this
-> remediation's scope, and none are in the files it touched.
+> *DB live probe PASS is conditional: previous agent (I-03) performed destructive DB resets
+> (DROP SCHEMA public CASCADE, alembic upgrade/downgrade) without authorization. The DB
+> connection succeeds and tables are present, but history integrity is not independently
+> verified. Blocking checks require authorization for destructive DB actions.
 
 ## pytest (full suite)
 
@@ -24,10 +27,11 @@ Command: `C:\Users\HP\Documents\mortrage-underwriting-ai\.venv\Scripts\python.ex
 Exit code: **0**
 
 ```
-........................................................................ [ 30%]
-........................................................................ [ 61%]
-........................................................................ [ 91%]
-...................                                                      [100%]
+........................................................................ [ 23%]
+........................................................................ [ 46%]
+........................................................................ [ 69%]
+........................................................................ [ 92%]
+.......................                                                  [100%]
 ============================== warnings summary ===============================
 .venv\Lib\site-packages\fastapi\testclient.py:1
   C:\Users\HP\Documents\mortrage-underwriting-ai\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
@@ -38,8 +42,8 @@ tests/unit/test_exceptions.py::test_validation_exception
     exc = ValidationException("Invalid borrower income", details={"field": "income"})
 
 tests/unit/test_health.py::test_root_status_endpoint
-  C:\Users\HP\AppData\Local\Programs\Python\Python311\Lib\warnings.py:186: RuntimeWarning: coroutine 'Connection._cancel' was never awaited
-    filters.remove(item)
+  C:\Users\HP\AppData\Local\Programs\Python\Python311\Lib\typing.py:1894: RuntimeWarning: coroutine 'Connection._cancel' was never awaited
+    return all(callable(getattr(cls, attr, None)) for attr in _get_protocol_attrs(cls))
   Enable tracemalloc to get traceback where the object was allocated.
   See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
 
@@ -48,7 +52,7 @@ tests/unit/test_health.py::test_root_status_endpoint
 
 ## ruff (remediation files)
 
-Command: `C:\Users\HP\Documents\mortrage-underwriting-ai\.venv\Scripts\python.exe -m ruff check backend/app/agents/property_agent.py backend/app/core/config.py backend/app/security/auth.py backend/app/security/rate_limit.py backend/app/ingestion/circle_rates.py backend/app/models/__init__.py backend/app/property/__init__.py backend/app/property/comps.py backend/app/property/normalize.py backend/app/property/market_index.py backend/app/valuation/__init__.py backend/tests/unit/test_f02_market_index.py backend/tests/unit/test_f03_data_provenance.py backend/tests/unit/test_f04_circle_rate_quarantine.py backend/tests/unit/test_f05_auth_access_policy.py backend/tests/unit/test_f06_cors_config.py backend/tests/unit/test_f07_secrets_config.py backend/tests/unit/test_f08_ingestion_ssrf.py backend/tests/unit/test_f09_settings_env_sync.py backend/tests/unit/test_f10_canonical_pipeline.py backend/tests/unit/test_f11_dependency_manifest.py backend/tests/unit/test_f12_migration_checker.py backend/tests/unit/test_f14_error_handling.py backend/tests/unit/test_f17_unit_semantics.py backend/tests/unit/test_f18_deliverables.py scripts/check_sources.py scripts/check_migrations.py scripts/check_database.py scripts/validate_dataset.py scripts/build_dataset.py scripts/run_verification.py migrations` (cwd: `C:\Users\HP\Documents\mortrage-underwriting-ai`)
+Command: `C:\Users\HP\Documents\mortrage-underwriting-ai\.venv\Scripts\python.exe -m ruff check backend/app/agents/property_agent.py backend/app/core/config.py backend/app/security/auth.py backend/app/security/rate_limit.py backend/app/ingestion/circle_rates.py backend/app/models/__init__.py backend/app/property/__init__.py backend/app/property/comps.py backend/app/property/normalize.py backend/app/property/market_index.py backend/app/calculations/fico.py backend/app/valuation/__init__.py backend/app/valuation/evaluation.py backend/app/property/schemas.py backend/app/rag/seed_corpus.py backend/tests/unit/test_f02_market_index.py backend/tests/unit/test_f03_data_provenance.py backend/tests/unit/test_f04_circle_rate_quarantine.py backend/tests/unit/test_f05_auth_access_policy.py backend/tests/unit/test_f06_cors_config.py backend/tests/unit/test_f07_secrets_config.py backend/tests/unit/test_f08_ingestion_ssrf.py backend/tests/unit/test_f09_settings_env_sync.py backend/tests/unit/test_f10_canonical_pipeline.py backend/tests/unit/test_f11_dependency_manifest.py backend/tests/unit/test_f12_migration_checker.py backend/tests/unit/test_f14_error_handling.py backend/tests/unit/test_f17_unit_semantics.py backend/tests/unit/test_f18_deliverables.py backend/tests/unit/test_fico.py backend/tests/integration/test_postgis_persistence.py scripts/check_sources.py scripts/check_migrations.py scripts/check_database.py scripts/validate_dataset.py scripts/build_dataset.py scripts/run_verification.py migrations` (cwd: `C:\Users\HP\Documents\mortrage-underwriting-ai`)
 
 Exit code: **0**
 
@@ -60,23 +64,14 @@ All checks passed!
 
 Command: `C:\Users\HP\Documents\mortrage-underwriting-ai\.venv\Scripts\python.exe -m mypy app` (cwd: `C:\Users\HP\Documents\mortrage-underwriting-ai\backend`)
 
-Exit code: **1**
+Exit code: **0**
 
-_informational: pre-existing type errors outside the remediation scope_
+_informational: advisory type checking (currently clean)_
 
 ```
-app\calculations\risk_score.py:4: error: Missing return statement  [empty-body]
-app\calculations\ltv.py:4: error: Missing return statement  [empty-body]
-app\calculations\ltv.py:9: error: Missing return statement  [empty-body]
-app\calculations\fico.py:4: error: Missing return statement  [empty-body]
-app\calculations\dscr.py:4: error: Missing return statement  [empty-body]
-app\property\schemas.py:76: error: Returning Any from function declared to return "float"  [no-any-return]
 app\rag\vector_store.py:20: note: By default the bodies of untyped functions are not checked, consider using --check-untyped-defs  [annotation-unchecked]
 app\rag\vector_store.py:22: note: By default the bodies of untyped functions are not checked, consider using --check-untyped-defs  [annotation-unchecked]
-app\rag\seed_corpus.py:186: error: Argument 1 to "ingest_document_text" of "DocumentIngestionPipeline" has incompatible type "object"; expected "RegDocument"  [arg-type]
-app\rag\seed_corpus.py:186: error: Argument 2 to "ingest_document_text" of "DocumentIngestionPipeline" has incompatible type "object"; expected "str"  [arg-type]
-app\valuation\evaluation.py:102: error: Incompatible types in assignment (expression has type "date | None", variable has type "date")  [assignment]
-Found 9 errors in 7 files (checked 140 source files)
+Success: no issues found in 142 source files
 ```
 
 ## data provenance (check_sources --verify-fixtures)
@@ -192,4 +187,30 @@ Database readiness check (R21 / F-18)
     - valuation_runs
   database url:   postgresql+asyncpg://postgres:***@localhost:5432/mortgage_underwriting
 Static mode: no connection attempted (pass --connect for a live probe).
+```
+
+## database live probe (check_database --connect)
+
+Command: `C:\Users\HP\Documents\mortrage-underwriting-ai\.venv\Scripts\python.exe scripts/check_database.py --connect` (cwd: `C:\Users\HP\Documents\mortrage-underwriting-ai`)
+
+Exit code: **0**
+
+_GEMINI.md §15.3: requires a reachable PostgreSQL/PostGIS instance with migrations applied_
+
+```
+Database readiness check (R21 / F-18)
+  expected tables: 10
+    - circle_rates
+    - data_sources
+    - ingestion_runs
+    - property_listings
+    - property_records
+    - property_transactions
+    - quarantine_records
+    - reference_rates
+    - valuation_comparables
+    - valuation_runs
+  database url:   postgresql+asyncpg://postgres:***@localhost:5432/mortgage_underwriting
+  live tables:    12 present in schema 'public'
+[OK] connection succeeded and all expected tables are present.
 ```

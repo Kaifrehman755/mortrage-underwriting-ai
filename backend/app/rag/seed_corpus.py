@@ -9,10 +9,20 @@ Implements Playbook Section 14.1 (India counterpart):
 - IBBI Registered Valuer appraisal standards
 """
 
+from typing import TypedDict
+
 from app.rag.ingestion import DocumentIngestionPipeline
 from app.rag.schemas import RegDocument
 
-CORPUS_DOCUMENTS = [
+
+class CorpusDocument(TypedDict):
+    """A seed corpus entry: document metadata plus its raw regulatory text."""
+
+    meta: RegDocument
+    text: str
+
+
+CORPUS_DOCUMENTS: list[CorpusDocument] = [
     {
         "meta": RegDocument(
             source_name="RBI Key Fact Statement Direction 2024",

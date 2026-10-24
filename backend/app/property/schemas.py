@@ -73,7 +73,9 @@ class ComparableRecord(BaseModel):
             return float(v)
         data = info.data
         if "sale_price" in data and "living_area_sqft" in data and data["living_area_sqft"] > 0:
-            return round(data["sale_price"] / data["living_area_sqft"], 2)
+            return round(
+                float(data["sale_price"]) / float(data["living_area_sqft"]), 2
+            )
         return 0.0
 
 

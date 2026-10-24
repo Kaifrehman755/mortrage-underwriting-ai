@@ -115,7 +115,7 @@ def main(argv: list[str] | None = None) -> int:
     print(f"  live tables:    {len(present)} present in schema 'public'")
     if missing:
         print(f"[FAIL] missing {len(missing)} expected table(s): {', '.join(missing)}")
-        print("       (F-12: no Alembic revision exists yet, so a clean database cannot be built)")
+        print("       (run `alembic upgrade head` to build the schema from the initial revision)")
         return 1
     print("[OK] connection succeeded and all expected tables are present.")
     return 0

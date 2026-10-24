@@ -22,6 +22,9 @@ known-first-party = ["app"]
 [tool.pytest.ini_options]
 minversion = "8.0"
 addopts = "-ra -q --strict-markers"
+markers = [
+    "integration: requires a live PostgreSQL/PostGIS instance (skipped when unavailable)",
+]
 testpaths = [
     "tests",
 ]

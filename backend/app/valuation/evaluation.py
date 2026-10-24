@@ -13,9 +13,8 @@ Enforces GEMINI.md Section 7, Section 10 Step 6, and Section 11:
 from __future__ import annotations
 
 import hashlib
-import json
 import statistics
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass, field
 from datetime import date
 from typing import Any
 
@@ -79,7 +78,7 @@ def create_temporal_split(
     train_records: list[dict[str, Any]] = []
     test_records: list[dict[str, Any]] = []
 
-    for pid, group in property_groups.items():
+    for group in property_groups.values():
         # Check max date in this property group
         dates: list[date] = []
         for r in group:
@@ -99,8 +98,14 @@ def create_temporal_split(
             # Assign strictly prior transactions to train
             for r in group:
                 raw_d = r.get("transaction_date") or r.get("date")
-                dt = raw_d if isinstance(raw_d, date) else date.fromisoformat(str(raw_d)[:10]) if raw_d else None
-                if dt and dt <= split_date:
+                txn_date: date | None = (
+                    raw_d
+                    if isinstance(raw_d, date)
+                    else date.fromisoformat(str(raw_d)[:10])
+                    if raw_d
+                    else None
+                )
+                if txn_date and txn_date <= split_date:
                     train_records.append(r)
         else:
             test_records.extend(group)
@@ -150,7 +155,7 @@ def create_locality_holdout_split(
         total_records=len(records),
         train_count=len(train_records),
         test_count=len(test_records),
-        held_out_localities=sorted(list(norm_held)),
+        held_out_localities=sorted(norm_held),
         manifest_hash=manifest_hash,
     )
 
