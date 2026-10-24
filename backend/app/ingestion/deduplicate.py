@@ -9,8 +9,6 @@ Enforces GEMINI.md Section 6:
 from __future__ import annotations
 
 import hashlib
-from typing import Any
-from uuid import UUID
 
 from app.schemas.property import PropertyRecordCreate
 from app.schemas.transaction import PropertyTransactionCreate, ReferenceRateCreate

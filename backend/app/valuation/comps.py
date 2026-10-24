@@ -15,12 +15,11 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import date, timedelta
 from typing import Any
-from uuid import UUID, NAMESPACE_URL, uuid5
+from uuid import NAMESPACE_URL, UUID, uuid5
 
 from app.database.repositories.property_repo import haversine_distance_meters
 from app.ingestion.normalize import calculate_price_per_sqft
 from app.schemas.property import AreaType, PropertyType
-from app.schemas.transaction import PriceType
 
 
 def coerce_to_uuid(raw_id: Any) -> UUID:

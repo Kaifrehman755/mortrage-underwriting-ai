@@ -9,8 +9,8 @@ Enforces GEMINI.md Section 2, Section 8, and CLAUDE.md Non-Negotiable Rule 10:
 from __future__ import annotations
 
 import math
+from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Sequence
 
 from app.valuation.comps import EligibleComparable
 

@@ -12,7 +12,7 @@ Enforces GEMINI.md Section 6:
 from __future__ import annotations
 
 import statistics
-from typing import Sequence
+from collections.abc import Sequence
 
 from app.valuation.comps import EligibleComparable
 

@@ -9,7 +9,6 @@ Enforces GEMINI.md Section 4.3 and Section 8:
 from __future__ import annotations
 
 from datetime import date
-from typing import Any
 from uuid import UUID
 
 from sqlalchemy import select

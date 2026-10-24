@@ -5,14 +5,14 @@ Enforces GEMINI.md Section 4.7:
 """
 
 from datetime import UTC, date, datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
-class ValuationStatus(str, Enum):
+class ValuationStatus(StrEnum):
     COMPLETED = "completed"
     ABSTAINED = "abstained"
     NEEDS_HUMAN_REVIEW = "needs_human_review"

@@ -11,7 +11,7 @@ from __future__ import annotations
 import csv
 from datetime import UTC, datetime
 from pathlib import Path
-from uuid import UUID, uuid5, NAMESPACE_URL
+from uuid import NAMESPACE_URL, UUID, uuid5
 
 from app.schemas.source import ApprovalStatus, DataSourceRead, SourceType
 
@@ -42,7 +42,7 @@ class SourceRegistry:
         if not self.csv_path.exists():
             return
 
-        with open(self.csv_path, mode="r", encoding="utf-8", newline="") as f:
+        with open(self.csv_path, encoding="utf-8", newline="") as f:
             reader = csv.DictReader(f)
             for row in reader:
                 state = str(row.get("state_code", "")).strip().upper()

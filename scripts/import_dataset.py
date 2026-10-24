@@ -108,8 +108,7 @@ def ingest_state_file(
     out_file.parent.mkdir(parents=True, exist_ok=True)
     if accepted:
         with open(out_file, "w", encoding="utf-8") as f:
-            for r in accepted:
-                f.write(r.model_dump_json() + "\n")
+            f.writelines(r.model_dump_json() + "\n" for r in accepted)
         print(f"[OK] Persisted {len(accepted)} accepted records to {out_file}")
 
     manifest_file = default_manifest_dir / f"manifest_{accounting.run_id}.json"
@@ -120,7 +119,7 @@ def ingest_state_file(
     # 4. Optional Idempotency Check
     if verify_idempotency:
         print("\n--- Ingestion Pass 2 (Idempotency Verification) ---")
-        accepted_p2, acc_p2, _ = provider.ingest_file(file_path)
+        _accepted_p2, acc_p2, _ = provider.ingest_file(file_path)
         print(f"Rows Received:    {acc_p2.rows_received}")
         print(f"Rows Accepted:    {acc_p2.rows_accepted} (Expected: 0)")
         print(f"Rows Duplicate:   {acc_p2.rows_duplicate} (Expected: {accounting.rows_accepted})")

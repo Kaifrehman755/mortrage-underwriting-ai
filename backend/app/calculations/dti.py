@@ -8,7 +8,7 @@ def calculate_dti(
     gross_monthly_income: Decimal,
     total_monthly_debt: Decimal,
 ) -> dict[str, Any]:
-    
+
     warnings: list[str] = []
 
     # Validate gross monthly income

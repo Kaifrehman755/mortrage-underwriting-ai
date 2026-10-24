@@ -8,10 +8,8 @@ Enforces GEMINI.md Section 4.2 and Section 8:
 from __future__ import annotations
 
 import math
-from typing import Any
 from uuid import UUID
 
-from geoalchemy2.functions import ST_DWithin, ST_Distance, ST_MakePoint, ST_SetSRID
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 

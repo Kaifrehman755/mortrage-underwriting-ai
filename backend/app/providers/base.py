@@ -11,18 +11,18 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import StrEnum
 from pathlib import Path
 from typing import Any
 
 from app.ingestion.provider import ReferenceRateFileProvider
 from app.ingestion.quarantine import IngestionRunAccounting, QuarantineRecord
 from app.ingestion.registry import default_registry
-from app.schemas.source import ApprovalStatus, DataSourceRead
+from app.schemas.source import DataSourceRead
 from app.schemas.transaction import ReferenceRateCreate
 
 
-class StateReadinessStatus(str, Enum):
+class StateReadinessStatus(StrEnum):
     """Readiness classification for state data providers."""
 
     PILOT_REFERENCE_RATE_ONLY = "pilot_reference_rate_only"

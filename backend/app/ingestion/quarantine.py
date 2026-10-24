@@ -6,14 +6,13 @@ Enforces GEMINI.md Section 4.6 and Section 6:
 """
 
 from datetime import UTC, datetime
-from enum import Enum
-from typing import Any
+from enum import StrEnum
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
-class QuarantineReason(str, Enum):
+class QuarantineReason(StrEnum):
     MISSING_PRICE = "MISSING_PRICE"
     MISSING_AREA = "MISSING_AREA"
     MISSING_REQUIRED_FIELD = "MISSING_REQUIRED_FIELD"

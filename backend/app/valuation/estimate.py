@@ -16,8 +16,9 @@ Enforces GEMINI.md Section 4.7, Section 6, Section 8, and Section 10 Step 6:
 from __future__ import annotations
 
 import math
+from collections.abc import Sequence
 from datetime import date
-from typing import Any, Sequence
+from typing import Any
 from uuid import UUID, uuid4
 
 from app.providers.registry import state_provider_registry
@@ -27,7 +28,10 @@ from app.schemas.valuation import (
     ValuationRunCreate,
     ValuationStatus,
 )
-from app.valuation.comps import ComparableSelector, EligibleComparable, SubjectPropertyInput
+from app.valuation.comps import (
+    ComparableSelector,
+    SubjectPropertyInput,
+)
 from app.valuation.confidence import compute_confidence_and_bounds
 from app.valuation.outliers import evaluate_robust_outliers
 

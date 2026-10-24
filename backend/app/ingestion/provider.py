@@ -12,19 +12,21 @@ from __future__ import annotations
 
 import csv
 import hashlib
-import json
 from abc import ABC, abstractmethod
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 from app.ingestion.deduplicate import DeduplicationIndex
-from app.ingestion.quarantine import IngestionRunAccounting, QuarantineReason, QuarantineRecord
-from app.ingestion.registry import SourceApprovalError, default_registry
-from app.ingestion.validate import validate_reference_rate_row, validate_transaction_row
+from app.ingestion.quarantine import (
+    IngestionRunAccounting,
+    QuarantineRecord,
+)
+from app.ingestion.registry import SourceApprovalError
+from app.ingestion.validate import validate_reference_rate_row
 from app.schemas.source import ApprovalStatus, DataSourceRead
-from app.schemas.transaction import PropertyTransactionCreate, ReferenceRateCreate
+from app.schemas.transaction import ReferenceRateCreate
 
 BUILD_VERSION = "1.0.0"
 
@@ -95,7 +97,7 @@ class ReferenceRateFileProvider(BaseIngestionProvider):
         rows_rejected = 0
 
         # 3. Read and process rows
-        with open(path, mode="r", encoding="utf-8", newline="") as f:
+        with open(path, encoding="utf-8", newline="") as f:
             reader = csv.DictReader(f)
             for row in reader:
                 rows_received += 1

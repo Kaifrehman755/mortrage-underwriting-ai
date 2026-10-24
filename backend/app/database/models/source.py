@@ -4,7 +4,7 @@ Enforces GEMINI.md Section 4.1:
 - Provider identity, licensing scope, and approval gate status.
 """
 
-from datetime import UTC, datetime
+from datetime import datetime
 from uuid import UUID, uuid4
 
 from sqlalchemy import DateTime, String, Text, func

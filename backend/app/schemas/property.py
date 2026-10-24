@@ -5,14 +5,14 @@ Enforces GEMINI.md Section 4.2:
 """
 
 from datetime import UTC, datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
-class PropertyType(str, Enum):
+class PropertyType(StrEnum):
     APARTMENT = "apartment"
     INDEPENDENT_HOUSE = "independent_house"
     VILLA = "villa"
@@ -20,7 +20,7 @@ class PropertyType(str, Enum):
     OTHER_RESIDENTIAL = "other_residential"
 
 
-class AreaType(str, Enum):
+class AreaType(StrEnum):
     CARPET = "carpet"
     BUILT_UP = "built_up"
     SUPER_BUILT_UP = "super_built_up"
@@ -28,13 +28,13 @@ class AreaType(str, Enum):
     UNKNOWN = "unknown"
 
 
-class SourceAuthenticityStatus(str, Enum):
+class SourceAuthenticityStatus(StrEnum):
     VERIFIED_OFFICIAL = "verified_official"
     SECONDARY_PROVIDER = "secondary_provider"
     UNVERIFIED = "unverified"
 
 
-class AttributeVerificationStatus(str, Enum):
+class AttributeVerificationStatus(StrEnum):
     VERIFIED = "verified"
     UNVERIFIED = "unverified"
     DISPUTED = "disputed"

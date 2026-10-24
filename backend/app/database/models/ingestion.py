@@ -5,7 +5,7 @@ Enforces GEMINI.md Section 4.6 and Section 6:
 - Rejected/quarantined records stored with reason codes.
 """
 
-from datetime import UTC, datetime
+from datetime import datetime
 from uuid import UUID, uuid4
 
 from sqlalchemy import (

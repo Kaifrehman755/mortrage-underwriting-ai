@@ -43,7 +43,7 @@ class StateProviderRegistry:
 
     def list_supported_states(self) -> list[str]:
         """List state codes for all registered state providers."""
-        return sorted(list(self._providers.keys()))
+        return sorted(self._providers.keys())
 
     def get_all_state_statuses(self) -> dict[str, dict[str, Any]]:
         """Return readiness and access metadata across all registered state providers."""

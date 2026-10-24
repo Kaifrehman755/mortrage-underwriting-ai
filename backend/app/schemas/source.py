@@ -5,20 +5,20 @@ Enforces GEMINI.md Section 4.1:
 """
 
 from datetime import UTC, datetime
-from enum import Enum
+from enum import StrEnum
 from uuid import UUID, uuid4
 
-from pydantic import BaseModel, ConfigDict, Field, HttpUrl
+from pydantic import BaseModel, ConfigDict, Field
 
 
-class SourceType(str, Enum):
+class SourceType(StrEnum):
     GOVERNMENT = "government"
     AUTHORIZED_PROVIDER = "authorized_provider"
     MANUAL_AUTHORIZED_IMPORT = "manual_authorized_import"
     SYNTHETIC_TEST = "synthetic_test"
 
 
-class ApprovalStatus(str, Enum):
+class ApprovalStatus(StrEnum):
     PENDING_REVIEW = "pending_review"
     APPROVED = "approved"
     SUSPENDED = "suspended"

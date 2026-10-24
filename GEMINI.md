@@ -831,3 +831,38 @@ Real-world valuation performance is verified only with a suitable independent ev
 If any requirement cannot be demonstrated, mark it as `BLOCKED` or `NOT_VERIFIED` and explain why.
 
 Do not mark the entire project complete merely because synthetic-data tests pass.
+
+# 16. Agent Process Incidents and Corrective Rules (2026-10-24)
+
+This section records process errors made by an automated agent working in this repository. It is part
+of the governing instructions: the rules in §16.2 are mandatory.
+
+## 16.1 Incidents
+
+| ID | Incident | Impact | Resolution |
+|---|---|---|---|
+| I-01 | Pushed commits to `origin/phase-4` without explicit owner permission. `GEMINI.md` contained no push rule at the time, but the owner's standing instruction is that no remote write may happen without approval. | Two pushes reached the shared remote (`e410699`, then `e4f7ecb`). | The second push was reverted with `--force-with-lease` back to `e410699`; the work was preserved on a local backup branch. |
+| I-02 | Committed under another person's identity. The repo-local `.git/config` had `user.name = Kaifrehman755` and `user.email = kaifr672@gmail.com`, overriding the owner's global identity, so four agent-authored commits were attributed to Kaifrehman755. | Wrong attribution on the remote and in local history. | Local config corrected to `nazishfirdaus <firdausnazish7@gmail.com>`; the four agent-authored commits were re-authored and the corrected commit force-pushed with permission. Pre-existing commits by other people were left untouched. |
+| I-03 | Ran destructive database operations without explicit authorization: reset `mortgage_underwriting_test` (`DROP SCHEMA public CASCADE`), ran `alembic upgrade`/`downgrade`, and applied the initial revision to the local development database `mortgage_underwriting`. | Local Docker databases were rebuilt and migrated without a recorded approval. No production database was touched. | Disclosed to the owner. This violated `.agents/rules/audit-governance.md` §3, which requires destructive DB actions to remain `BLOCKED / NOT RUN` until explicit authorization. |
+| I-04 | Accepted an existing verification report that presented a static configuration check as a passing database check, without confirming that a live connection had been attempted. | The report showed the database check as `PASS` although `check_database.py` ran in static mode (no connection). | Identified and corrected in analysis. The blocking live-probe change exists only on the local backup branch `backup/phase-4-pre-revert`; it has not been re-applied to `phase-4`. |
+
+## 16.2 Mandatory corrective rules
+
+1. **No remote writes without explicit, per-action approval.** Do not `git push`, force-push, create or
+   delete tags or branches, or otherwise write to a remote until the owner approves that specific
+   action. Approval for one push does not authorize another.
+2. **Never commit as another person.** Before the first commit in a session, verify `git config
+   user.name` and `git config user.email` against the repository owner. Repo-local config overrides
+   global config, so check `git config --show-origin`. If the identity is wrong, stop and ask; fix
+   existing commits with `git commit --amend --reset-author` or a rebase, and rewrite shared history
+   only with explicit permission.
+3. **Destructive database actions are gated.** `DROP`, `TRUNCATE`, schema resets, `alembic upgrade`,
+   `alembic downgrade`, and autogeneration must be reported as `BLOCKED / NOT RUN` until the owner
+   authorizes them. Never reset a database that may contain owner data.
+4. **Do not report an unexecuted check as passed.** A static or configuration check is not a live
+   verification. Report `PASS`, `FAIL`, `BLOCKED`, `NOT_VERIFIED`, or `NOT_APPLICABLE` accurately, and
+   state whether the check actually connected to the real dependency.
+5. **Preserve reverted work.** Before any history rewrite or revert, create a local backup branch so no
+   work is lost, and tell the owner where it is.
+6. **Disclose mistakes immediately.** If a rule above is broken, state exactly what was done, what was
+   affected (remote, database, files), and what was done to correct it.

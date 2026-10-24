@@ -7,20 +7,20 @@ Enforces GEMINI.md Sections 4.3, 4.4, and 4.5:
 """
 
 from datetime import UTC, date, datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, ConfigDict, Field
 
 
-class PriceType(str, Enum):
+class PriceType(StrEnum):
     SALE_CONSIDERATION = "sale_consideration"
     REPORTED_SALE_PRICE = "reported_sale_price"
     UNKNOWN = "unknown"
 
 
-class TransactionVerificationStatus(str, Enum):
+class TransactionVerificationStatus(StrEnum):
     UNVERIFIED = "unverified"
     VERIFIED = "verified"
     REJECTED = "rejected"
@@ -52,7 +52,7 @@ class PropertyTransactionRead(PropertyTransactionBase):
     retrieved_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
-class ListingStatus(str, Enum):
+class ListingStatus(StrEnum):
     ACTIVE = "active"
     PENDING = "pending"
     SOLD = "sold"

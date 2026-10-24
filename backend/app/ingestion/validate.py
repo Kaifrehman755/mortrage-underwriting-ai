@@ -8,23 +8,16 @@ Enforces GEMINI.md Section 4, Section 5, and Section 6:
 
 from __future__ import annotations
 
-from datetime import date, datetime
+from datetime import date
 from typing import Any
 from uuid import UUID
 
 from app.ingestion.normalize import (
     SQM_TO_SQFT,
     SQYD_TO_SQFT,
-    normalize_area_sqft,
     normalize_inr_price,
 )
 from app.ingestion.quarantine import QuarantineReason, QuarantineRecord
-from app.schemas.property import (
-    AreaType,
-    PropertyRecordCreate,
-    PropertyType,
-    SourceAuthenticityStatus,
-)
 from app.schemas.transaction import (
     PriceType,
     PropertyTransactionCreate,
