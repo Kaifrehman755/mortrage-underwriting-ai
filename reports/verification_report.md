@@ -15,10 +15,13 @@ Python: `C:\Users\HP\Documents\mortrage-underwriting-ai\.venv\Scripts\python.exe
 | database config (check_database) | yes | 0 | PASS |
 | database live probe (check_database --connect) | yes | 0 | PASS* |
 
-> *DB live probe PASS is conditional: previous agent (I-03) performed destructive DB resets
-> (DROP SCHEMA public CASCADE, alembic upgrade/downgrade) without authorization. The DB
-> connection succeeds and tables are present, but history integrity is not independently
-> verified. Blocking checks require authorization for destructive DB actions.
+> DB LIVE PROBE / MIGRATION: CONDITIONAL / BLOCKED — previous agent (I-03) performed
+> destructive DB resets (DROP SCHEMA, alembic upgrade/downgrade) without authorization.
+> The `check_database --connect` command connects to a Docker container PostgreSQL instance,
+> but the user clarifies: 'there is no postgres connected; using TablePlus and integrating
+> postgres with it'. The container DB does not represent the user's intended/in-use database.
+> Destructive Alembic operations remain BLOCKED until the user confirms the verified
+> disposable target (`mortgage_underwriting_test`) and explicitly approves upgrade/downgrade.
 
 ## pytest (full suite)
 
