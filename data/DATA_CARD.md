@@ -37,19 +37,19 @@ As audited in `data/source_readiness.csv`:
 
 - **Uttar Pradesh (UP):**
   - Fixture: `data/reference_rates/up_lucknow_circle_rates_2024.csv`
-  - SHA-256: `fdd2ab821967c388e53c4baba9e7d66bd8d35feae339a5f515bfbad526581f4f`
+  - SHA-256: `1ef78d3bac7809fbf9af68ceed5aa686a2fea7a79b96dd4b04bece92ec6acf09`
   - Rows: 12 received, 12 accepted, 0 quarantined, 0 duplicate (Pass 1). Invariant: `12 == 12` (PASSED).
 - **Maharashtra (MH):**
   - Fixture: `data/reference_rates/mh_mumbai_ready_reckoner_2024.csv`
-  - SHA-256: `b021358f612292b84feac60c73a9f3a181197b06b2429b9a3f4de28a7cac2e73`
+  - SHA-256: `4c9ba460e9fd97a6f5bc5fcfc9657d66f09d0bd1b9f3c75a43a930fd678fc3d3`
   - Rows: 7 received, 7 accepted, 0 quarantined, 0 duplicate (Pass 1). Invariant: `7 == 7` (PASSED).
 - **Karnataka (KA):**
   - Fixture: `data/reference_rates/ka_bengaluru_guidance_values_2024.csv`
-  - SHA-256: `001aed31303f8c0bcfa3883a67b88f28e788a1d2b802b039b6c102155854fe0d`
+  - SHA-256: `677d2b94b473b4f2e520dcdfe0459fd2014f19169874fa3dfad4424156a262c7`
   - Rows: 7 received, 7 accepted, 0 quarantined, 0 duplicate (Pass 1). Invariant: `7 == 7` (PASSED).
 - **Telangana (TS):**
   - Fixture: `data/reference_rates/ts_hyderabad_market_values_2024.csv`
-  - SHA-256: `5a0a30f43d684e279dc213a643aae5f60e11409358883431e389d52dce59cf3d`
+  - SHA-256: `26e0f9079bf690abb47f562b23b22fc763c0db2ae0f7f963377da283b024ae01`
   - Rows: 7 received, 7 accepted, 0 quarantined, 0 duplicate (Pass 1). Invariant: `7 == 7` (PASSED).
 
 All fixtures guarantee 100% idempotency (zero net duplicates added on second pass).
