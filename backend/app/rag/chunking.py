@@ -56,6 +56,9 @@ class GuidelineChunker:
                     state_code=document.state_code,
                     effective_from=document.effective_from,
                     effective_to=document.effective_to,
+                    version_or_date=document.version_or_date,
+                    approved=document.approved,
+                    license_scope=document.license_scope,
                     index_version=self.index_version,
                 )
                 chunks.append(chunk)

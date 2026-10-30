@@ -1,6 +1,8 @@
 # Progress — India Property-Valuation Backend
 
-**Scope:** India property-valuation backend only. No RAG, compliance, frontend or US-mortgage work.
+**Scope:** India property-valuation backend, extended with deterministic compliance and RAG
+governance. RAG/compliance are now partially in scope (see the status update below); frontend and
+US-mortgage work remain out of scope.
 **Governing instructions (not edited):** `GEMINI.md` (the duplicate `CLAUDE.md` was removed in the
 ratification commit), `backend/app/property/playbook.md`, `data/regulatory_docs/.clinerules/*`.
 **Authoritative brief + per-finding status log:** `SECURITY_AUDIT_REPORT.md`.
@@ -8,6 +10,46 @@ ratification commit), `backend/app/property/playbook.md`, `data/regulatory_docs/
 
 This file is the R21 `docs/PROGRESS.md` deliverable (F-18). It records where the remediation stands,
 the required scripts/reports, and the documented deviations.
+
+### Compliance/RAG completion update (2026-10-25)
+
+Implemented:
+
+- `backend/app/compliance/` now has a deterministic engine, evidence contract, versioned rule config,
+  and eight India starter rules (`KFS-001`, `LTV-001`, `RERA-001`, `TITLE-001`, `VAL-001`, `KYC-001`,
+  `FAIR-001`, `DATA-001`). Findings without evidence are downgraded to `cannot_verify`.
+- `ComplianceAgent` runs the engine, attaches evidence, and emits an audit event.
+- `/compliance`, `/evidence`, `/missing`, `/review`, `/approve`, `/sources` commands were added with
+  role checks. `/market` now abstains instead of returning hard-coded figures.
+- RAG documents default to `approved=false`; retrieval excludes unapproved documents unless a test
+  explicitly opts in. Synthetic seed text is marked `synthetic_test_fixture`.
+- Postgres/pgvector evidence persistence is implemented in `backend/app/rag/postgres_store.py`, with
+  idempotent ingestion by document SHA-256, approval/state/effective-date/index-version SQL filters,
+  and hybrid vector + full-text fusion. A raw-document store (`backend/app/rag/raw_store.py`) uses
+  MinIO/S3 in production and a local filesystem store for offline tests.
+- Migration `a7c9e2f4b6d8` adds `compliance_finding`, `reg_document`, `reg_chunk`, `market_indicator`,
+  `raw_record`, `jurisdiction`, source approval/freshness columns, the vector extension, HNSW/GIN
+  indexes, and the evidence-required database constraint. It was applied to the local
+  `mortgage_underwriting` database and the full **378-test** suite (including live PostGIS/pgvector
+  integration tests) passes.
+- Bronze ingestion (`backend/app/ingestion/bronze.py`) provides a deterministic, PII-free
+  `record_fingerprint` and `(source_id, record_type, record_fingerprint)` deduplication.
+- `SourceFreshnessRepository` records per-source attempts, successes, bounded failures, and stale
+  approved sources. Staleness is queryable for `DATA-001` and operational alerts; approval remains a
+  separate owner action.
+- The real embedding runtime is declared in `backend/requirements-rag.txt`; production construction
+  fails closed when it is absent instead of using the deterministic test projection.
+- Docker Compose now provisions a PostGIS + pgvector Postgres image, Redis, and an S3-compatible
+  object store. The upstream `minio/minio` images were removed in September 2026; compose uses the
+  maintained Chainguard MinIO build and documents the local root-user/volume caveat.
+
+Still OPEN:
+
+- Owner-approved real regulatory sources with real hashes, terms snapshots and review dates.
+- Numeric thresholds in `rules.v1.json` remain `verified: false`; those rules abstain by design.
+- Ingestion of real source PDFs/XML and an owner-approved active `index_version` after a gold-set gate.
+- Canonical property/valuation table names still differ from the playbook's field-level names; this
+  is a documented deviation rather than a completed migration.
 
 ---
 
@@ -27,7 +69,7 @@ the required scripts/reports, and the documented deviations.
 | F-10 two parallel valuation pipelines / ORM trees | MEDIUM | REMEDIATED (canonical designation) |
 | F-11 duplicated dependency declarations | MEDIUM | REMEDIATED (static verification) |
 | F-12 no Alembic revision files | MEDIUM | REMEDIATED (initial revision + tested upgrade/downgrade on a disposable DB) |
-| F-13 RAG out-of-scope with fabricated content | MEDIUM | OPEN — out of scope (documented) |
+| F-13 RAG out-of-scope with fabricated content | MEDIUM | PARTIALLY REMEDIATED — synthetic corpus is marked unapproved and excluded from default retrieval; approved real-source ingestion remains OPEN |
 | F-14 broad exception handling / leaked error text | LOW | REMEDIATED |
 | F-15 `rows_rejected` accounting unreachable | LOW | REMEDIATED |
 | F-16 fabricated fallback source URL | LOW | REMEDIATED |
@@ -63,17 +105,23 @@ Reproduce:
 ./.venv/Scripts/python.exe scripts/build_dataset.py              # dry-run; fails closed (F-03)
 ```
 
+Testing requires all three gates for every change: unit, live integration, and **TED** (test with the
+development stack). See `docs/operations/testing.md` for the commands and the current development-stack
+smoke checks.
+
 ---
 
 ## 3. Documented blockers and gate consequences
 
 * **F-12 (Alembic) — RESOLVED.** The initial revision
-  `migrations/versions/e35561efe721_initial_schema.py` now exists (10 `create_table` + 40
-  `create_index`; no PostGIS-managed objects). It was generated and exercised against the disposable
-  database `mortgage_underwriting_test` on the local PostGIS container. On **2026-10-24** the cycle was
-  repeated on a freshly reset test database and the revision was then applied to the local development
-  database `mortgage_underwriting`; `scripts/check_database.py --connect` now reports all 10 expected
-  tables plus PostGIS. No production environment has been migrated.
+  `migrations/versions/e35561efe721_initial_schema.py` and the follow-on
+  `migrations/versions/a7c9e2f4b6d8_playbook_evidence_and_bronze.py` now exist. The initial revision
+  was generated and exercised against the disposable database `mortgage_underwriting_test` on the
+  local PostGIS container. On **2026-10-24** the cycle was repeated on a freshly reset test database
+  and the revision was then applied to the local development database `mortgage_underwriting`. On
+  **2026-10-25** the follow-on revision added the evidence/bronze tables and was applied to
+  `mortgage_underwriting`; the live integration suite confirms PostGIS and pgvector. No production
+  environment has been migrated.
 
   | Step | Result |
   |---|---|
@@ -82,7 +130,7 @@ Reproduce:
   | `alembic upgrade head` | exit 0 → 10 tables + `alembic_version`; `rate_inr_per_sqft` present |
   | `alembic downgrade base` | exit 0 → only `alembic_version` left (0 rows); PostGIS intact |
   | `alembic upgrade head` (repeat) | exit 0 → repeatable in both directions |
-  | `scripts/check_migrations.py` | **Ready: YES** (1 revision, 1 head) |
+  | `scripts/check_migrations.py` | **Ready: YES** (2 revisions, 1 head) |
 
   Two hazards were fixed to make this work: the autogenerate `include_object` filter that keeps
   Alembic away from PostGIS internals (`spatial_ref_sys`, `tiger`, `topology` — otherwise the first

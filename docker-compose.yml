@@ -1,6 +1,10 @@
 services:
   postgres:
-    image: postgis/postgis:16-3.4-alpine
+    # PostGIS + pgvector in one database (playbook section 2/4).
+    build:
+      context: ./docker/postgres
+      dockerfile: Dockerfile
+    image: mortgage-postgres-pgvector:16
     container_name: mortgage-postgres
     restart: unless-stopped
     environment:
@@ -15,6 +19,47 @@ services:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-mortgage_underwriting}"]
       interval: 5s
       timeout: 5s
+      retries: 5
+    networks:
+      - mortgage-network
+
+  minio:
+    # MinIO's official Docker Hub/Quay images were removed in September 2026.
+    # Chainguard publishes a maintained S3-compatible MinIO build. The image
+    # runs as UID 65532 by default; Docker Desktop named volumes on Windows do
+    # not reliably preserve that ownership, so local development runs it as root.
+    # In production set MINIO_UID/MINIO_GID and provision the volume explicitly.
+    image: ${MINIO_IMAGE:-cgr.dev/chainguard/minio:latest}
+    container_name: mortgage-minio
+    restart: unless-stopped
+    user: "${MINIO_UID:-0}:${MINIO_GID:-0}"
+    command: server /data --console-address ":9001"
+    environment:
+      # Fail closed: provision a real local credential in .env; do not use a
+      # shared default in any environment that stores real documents.
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:?MINIO_ACCESS_KEY must be set}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:?MINIO_SECRET_KEY must be set}
+    ports:
+      - "${MINIO_PORT:-9000}:9000"
+      - "${MINIO_CONSOLE_PORT:-9001}:9001"
+    volumes:
+      - minio_data:/data
+    networks:
+      - mortgage-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: mortgage-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
       retries: 5
     networks:
       - mortgage-network
@@ -37,6 +82,15 @@ services:
       STORAGE_UPLOADS_PATH: /app/storage/uploads
       STORAGE_PROCESSED_PATH: /app/storage/processed
       STORAGE_REPORTS_PATH: /app/storage/reports
+      VECTOR_DB_TYPE: pgvector
+      RAG_ACTIVE_INDEX_VERSION: ${RAG_ACTIVE_INDEX_VERSION:-}
+      RAW_DOCUMENT_STORE: ${RAW_DOCUMENT_STORE:-minio}
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:?MINIO_ACCESS_KEY must be set}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:?MINIO_SECRET_KEY must be set}
+      MINIO_BUCKET: ${MINIO_BUCKET:-mortgage-raw-documents}
+      MINIO_SECURE: ${MINIO_SECURE:-false}
+      REDIS_URL: redis://redis:6379/0
     ports:
       - "${API_PORT:-8000}:8000"
     volumes:
@@ -46,11 +100,19 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      minio:
+        condition: service_started
+      redis:
+        condition: service_healthy
     networks:
       - mortgage-network
 
 volumes:
   postgres_data:
+    driver: local
+  minio_data:
+    driver: local
+  redis_data:
     driver: local
 
 networks:

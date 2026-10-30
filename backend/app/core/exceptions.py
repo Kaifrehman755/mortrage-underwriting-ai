@@ -12,6 +12,28 @@ from app.core.logging import get_logger
 logger = get_logger(__name__)
 
 
+def _serializable_validation_errors(
+    exc: RequestValidationError,
+) -> list[dict[str, Any]]:
+    """Return validation errors that JSONResponse can always serialize.
+
+    Pydantic v2 puts the original exception object in ``ctx`` for custom
+    validators. Passing that straight to ``JSONResponse`` raises a TypeError and
+    turns a correct 422 into a 500.
+    """
+    serializable: list[dict[str, Any]] = []
+    for error in exc.errors():
+        item: dict[str, Any] = {
+            key: value for key, value in error.items() if key != "ctx"
+        }
+        if "ctx" in error:
+            item["ctx"] = {
+                key: str(value) for key, value in error["ctx"].items()
+            }
+        serializable.append(item)
+    return serializable
+
+
 class AppException(Exception):
     """Base application exception for all domain and service errors."""
 
@@ -124,7 +146,7 @@ def register_exception_handlers(app: FastAPI) -> None:
                 "error": {
                     "code": "REQUEST_VALIDATION_ERROR",
                     "message": "Invalid request parameters or payload",
-                    "details": {"errors": exc.errors()},
+                    "details": {"errors": _serializable_validation_errors(exc)},
                 }
             },
         )

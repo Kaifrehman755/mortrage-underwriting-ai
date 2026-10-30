@@ -570,10 +570,12 @@ def test_loan_officer_workflow_end_to_end():
     comps_res = handler.comps("case_lo_001")
     assert comps_res["count"] > 0
 
-    # 4. /market
+    # 4. /market abstains unless sourced indicators are attached to a case.
     mkt_res = handler.market("Gomti Nagar")
     assert mkt_res["locality"] == "Gomti Nagar"
-    assert mkt_res["median_registered_ppsf"] > 0
+    assert mkt_res["status"] == "cannot_verify"
+    assert mkt_res["indicators"] == {}
+    assert mkt_res["human_review_required"] is True
 
     # 5. /explain
     exp_res = handler.explain("case_lo_001")

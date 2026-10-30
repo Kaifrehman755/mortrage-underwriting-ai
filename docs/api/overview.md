@@ -47,7 +47,7 @@
 | `POST` | `/api/v1/documents/upload` | Upload borrower income/asset document | Phase 2 |
 | `POST` | `/api/v1/documents/{id}/process` | Trigger OCR & field extraction | Phase 2 |
 | `POST` | `/api/v1/underwriting/analyze` | Execute LangGraph workflow | Phase 3-6 |
-| `GET` | `/api/v1/compliance/check/{id}` | Run statutory compliance audit | Phase 5 |
+| `POST` | `/api/v1/compliance/check` | Run deterministic compliance rule pack on a case snapshot (implemented) | Phase 5 |
 | `GET` | `/api/v1/reports/{id}/pdf` | Export Fannie Mae Form 1008 / PDF | Phase 7 |
 
 ---

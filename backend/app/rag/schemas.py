@@ -6,11 +6,13 @@ Adheres strictly to Playbook Section 1, 4, 8, 14.1, 15.3:
 - Invariant 8: State isolation - scope ('national' vs 'state') and state_code filtering.
 """
 
+from __future__ import annotations
+
 from datetime import UTC, datetime
 from typing import Literal
 from uuid import uuid4
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 
 class RegDocument(BaseModel):
@@ -28,8 +30,34 @@ class RegDocument(BaseModel):
     url: str
     sha256: str
     retrieved_at: str = Field(default_factory=lambda: datetime.now(UTC).isoformat())
-    approved: bool = True
-    license_scope: str = "official_public"
+    # Fail closed: a document is not trusted until an owner records an approval.
+    approved: bool = False
+    approved_by: str | None = None
+    approved_at: str | None = None
+    review_due: str | None = None
+    terms_snapshot_sha256: str | None = None
+    license_scope: str = "unverified"
+
+    @model_validator(mode="after")
+    def validate_approval_record(self) -> RegDocument:
+        """An approved document must carry the playbook's approval record."""
+        if self.approved:
+            missing = [
+                field
+                for field in (
+                    "approved_by",
+                    "approved_at",
+                    "review_due",
+                    "terms_snapshot_sha256",
+                )
+                if not getattr(self, field)
+            ]
+            if missing:
+                raise ValueError(
+                    "approved documents require an approval record; missing: "
+                    + ", ".join(missing)
+                )
+        return self
 
 
 class RegChunk(BaseModel):
@@ -47,6 +75,9 @@ class RegChunk(BaseModel):
     state_code: str | None = None
     effective_from: str = "2000-01-01"
     effective_to: str = "2099-12-31"
+    version_or_date: str = "unknown"
+    approved: bool = False
+    license_scope: str = "unverified"
     index_version: str = "idx_v1_2026_10"
 
 
@@ -68,6 +99,7 @@ class EvidenceItem(BaseModel):
     snippet: str
     score: float = Field(..., ge=0.0, le=1.0)
     retrieved_at: str = Field(default_factory=lambda: datetime.now(UTC).isoformat())
+    license_scope: str = "unverified"
     index_version: str = "idx_v1_2026_10"
 
 

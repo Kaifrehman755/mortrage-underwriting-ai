@@ -557,6 +557,41 @@ Done when:
 
 Use synthetic fixtures for deterministic tests, but label them clearly and never include them in reported real-world accuracy metrics.
 
+### Mandatory verification gates (normative)
+
+Every code, data-pipeline, API, or schema change must pass all three gates before it is described as
+complete:
+
+1. **Unit testing** — isolated tests for functions, schemas, validators, rules, and failure paths.
+2. **Integration testing** — tests against the live PostGIS/pgvector database and storage services.
+   A run where the integration tests are skipped because a service is unavailable does **not** pass
+   this gate.
+3. **TED testing (test with development)** — start the development stack, apply migrations, and smoke
+   test the running API/CLI against the live development database and object store.
+
+Record the actual commands and results. If a gate cannot run, report it as blocked; never infer a pass
+from an earlier run or from code inspection. See `docs/operations/testing.md` for the current commands
+and baseline.
+
+### Browser automation and Playwright policy
+
+Browser automation may be used only when **all** of the following are true:
+
+1. The source has a recorded `approved` decision in `data/source_readiness.csv`.
+2. Its access method and terms explicitly permit the intended automated retrieval and use.
+3. The host is on an explicit allowlist for that collector.
+4. The collector respects rate limits, robots instructions, and the source's published access rules.
+
+Public visibility of a page does not grant permission for automated collection, storage,
+redistribution, or training. Never bypass a login, CAPTCHA, OTP, paywall, access control, or rate limit.
+Never automate a source marked `rejected` or `restricted`. If a page presents a login, CAPTCHA, OTP, or
+unclear terms, stop and use a manual authorized export or leave the source unapproved.
+
+Collectors must capture the URL, retrieval timestamp, HTTP status, raw bytes, SHA-256, and terms
+snapshot reference. Raw captures go to the bronze/raw layer first; they must not be written directly
+into gold tables. Do not extract or store buyer/seller names, PAN, Aadhaar, account numbers, or other
+unnecessary personal data.
+
 ## 12. Data Card Requirements
 
 Create `data/DATA_CARD.md` and maintain it as the dataset changes.
@@ -624,7 +659,8 @@ When modifying this repository:
 4. Do not scrape a source until its access rules and intended use are reviewed.
 5. Keep provider adapters separate from normalization and valuation logic.
 6. Keep reference rates, listings, transactions, and synthetic fixtures separate.
-7. Add tests for every data transformation and important failure case.
+7. Add tests for every data transformation and important failure case, and run the mandatory unit,
+   integration, and TED gates from Section 11 before reporting completion.
 8. Never silently drop rows or silently impute key valuation fields.
 9. Keep database migrations and `.env.example` in sync with code changes.
 10. Do not put secrets, personal data, or licensed raw datasets into Git.

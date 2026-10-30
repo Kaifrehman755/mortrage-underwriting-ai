@@ -15,6 +15,7 @@ duplicate spatial indexes, the stale ``rate_inr_normalized`` column) cannot sile
 from __future__ import annotations
 
 import importlib.util
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -84,10 +85,36 @@ CANONICAL_TABLES = (
 )
 
 
+def _revision_sources() -> dict[str, str]:
+    sources: dict[str, str] = {}
+    for path in sorted(VERSIONS_DIR.glob("*.py")):
+        if path.name == "__init__.py":
+            continue
+        text = path.read_text(encoding="utf-8")
+        revision_match = re.search(r"^revision:\s*str\s*=\s*[\"']([^\"']+)[\"']", text, re.MULTILINE)
+        if revision_match:
+            sources[revision_match.group(1)] = text
+    return sources
+
+
 def _initial_revision_source() -> str:
-    revisions = sorted(p for p in VERSIONS_DIR.glob("*.py") if p.name != "__init__.py")
-    assert len(revisions) == 1, f"expected exactly one revision, found {revisions}"
-    return revisions[0].read_text(encoding="utf-8")
+    sources = _revision_sources()
+    roots = [
+        source
+        for source in sources.values()
+        if "down_revision: str | None = None" in source
+    ]
+    assert len(roots) == 1, f"expected exactly one root revision, found {len(roots)}"
+    return roots[0]
+
+
+def _playbook_revision_source() -> str:
+    sources = _revision_sources()
+    matches = [
+        source for source in sources.values() if "a7c9e2f4b6d8" in source
+    ]
+    assert len(matches) == 1, "playbook evidence revision not found"
+    return matches[0]
 
 
 def test_initial_revision_is_the_root_and_creates_canonical_tables() -> None:
@@ -95,6 +122,24 @@ def test_initial_revision_is_the_root_and_creates_canonical_tables() -> None:
     assert "down_revision: str | None = None" in source
     for table in CANONICAL_TABLES:
         assert f"op.create_table('{table}'" in source, f"missing create_table for {table}"
+
+
+def test_playbook_revision_is_chained_and_creates_evidence_tables() -> None:
+    source = _playbook_revision_source()
+    assert 'down_revision: str | None = "e35561efe721"' in source
+    for table in (
+        "jurisdiction",
+        "reg_document",
+        "reg_chunk",
+        "compliance_finding",
+        "market_indicator",
+        "raw_record",
+    ):
+        assert f"op.create_table(\n        \"{table}\"" in source or f"op.create_table('{table}'" in source
+    assert "CREATE EXTENSION IF NOT EXISTS vector" in source
+    assert "ck_compliance_finding_evidence_required" in source
+    assert "ck_data_source_approved_needs_record" in source
+    assert "raw_record_dedupe" in source
 
 
 def test_initial_revision_uses_ratified_column_name() -> None:

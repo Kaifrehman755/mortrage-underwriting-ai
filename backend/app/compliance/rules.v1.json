@@ -1,0 +1,80 @@
+{
+  "rule_set_version": "2026-10-25.dev1",
+  "rules": {
+    "KFS-001": {
+      "verified": false,
+      "source_ref": "TODO-VERIFY: RBI Key Fact Statement directions",
+      "values": {
+        "min_cooling_off_days": null
+      }
+    },
+    "LTV-001": {
+      "verified": false,
+      "source_ref": "TODO-VERIFY: RBI housing-loan LTV prudential norms",
+      "values": {
+        "bands": []
+      }
+    },
+    "RERA-001": {
+      "verified": false,
+      "source_ref": "TODO-VERIFY: RERA Act 2016 and state RERA rules",
+      "values": {
+        "rera_id_pattern": null
+      }
+    },
+    "TITLE-001": {
+      "verified": true,
+      "source_ref": "Structural presence check; no numeric threshold",
+      "values": {}
+    },
+    "VAL-001": {
+      "verified": false,
+      "source_ref": "TODO-VERIFY: IBBI valuation standards and lender valuation policy",
+      "values": {
+        "max_model_gap_percent": null,
+        "max_circle_rate_gap_percent": null
+      }
+    },
+    "KYC-001": {
+      "verified": true,
+      "source_ref": "Structural presence check; no numeric threshold",
+      "values": {}
+    },
+    "FAIR-001": {
+      "verified": true,
+      "source_ref": "Article 15 Constitution of India and RBI fair-lending practice (structural check only)",
+      "values": {
+        "allowed_features": [
+          "locality",
+          "city",
+          "state_code",
+          "property_type",
+          "beds",
+          "baths",
+          "living_area_sqft",
+          "area_basis",
+          "year_built",
+          "floor_no",
+          "total_floors",
+          "lat",
+          "lon",
+          "distance_km",
+          "sale_date",
+          "price_per_sqft",
+          "age",
+          "condition",
+          "amenities",
+          "parking",
+          "furnishing"
+        ]
+      }
+    },
+    "DATA-001": {
+      "verified": false,
+      "source_ref": "TODO-VERIFY: lender source-refresh policy and index coverage",
+      "values": {
+        "max_source_age_days": null
+      }
+    }
+  }
+}

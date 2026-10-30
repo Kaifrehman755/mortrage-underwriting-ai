@@ -112,8 +112,25 @@ class Settings(BaseSettings):
     # (``backend/app/rag/embeddings.py``) and the playbook (§ stack: bge-small-en-v1.5,
     # 384 dims). Kept identical to avoid silent semantic/embedding drift.
     EMBEDDINGS_MODEL: str = "BAAI/bge-small-en-v1.5"
-    VECTOR_DB_TYPE: str = "chromadb"
+    # The playbook's single-database design uses pgvector, not a separate
+    # Chroma process. No retrieval is trusted until approved evidence exists.
+    VECTOR_DB_TYPE: str = "pgvector"
     VECTOR_DB_PATH: str = "./storage/vector_store"
+    RAG_ACTIVE_INDEX_VERSION: str = ""
+
+    # --- Raw regulatory document store (MinIO / S3 compatible) ---
+    # Empty credentials fail closed; local development can opt into the
+    # filesystem store explicitly with RAW_DOCUMENT_STORE=local.
+    RAW_DOCUMENT_STORE: str = "minio"
+    MINIO_ENDPOINT: str = "localhost:9000"
+    MINIO_ACCESS_KEY: str = ""
+    MINIO_SECRET_KEY: str = ""
+    MINIO_BUCKET: str = "mortgage-raw-documents"
+    MINIO_SECURE: bool = False
+
+    # --- Provider-response cache ---
+    # Reserved for the playbook's Redis cache; no code depends on it yet.
+    REDIS_URL: str = "redis://localhost:6379/0"
 
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod
@@ -143,6 +160,15 @@ class Settings(BaseSettings):
             "CIRCLE_RATE_ALLOWED_HOSTS must be a list or a comma/JSON string, "
             f"got {type(v).__name__}"
         )
+
+    @field_validator("RAW_DOCUMENT_STORE")
+    @classmethod
+    def validate_raw_document_store(cls, v: str) -> str:
+        """Only the two implemented raw stores are accepted."""
+        normalized = v.strip().lower()
+        if normalized not in {"minio", "local"}:
+            raise ValueError("RAW_DOCUMENT_STORE must be 'minio' or 'local'")
+        return normalized
 
     @model_validator(mode="after")
     def _enforce_secure_defaults(self) -> "Settings":

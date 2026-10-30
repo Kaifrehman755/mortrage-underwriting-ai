@@ -45,6 +45,7 @@ class VectorStoreManager:
         dense_candidates: int = 30,
         keyword_candidates: int = 30,
         rrf_k: int = 60,
+        require_approved: bool = True,
     ) -> list[tuple[RegChunk, float]]:
         """Execute hybrid search combining vector cosine ranking and keyword ranking via RRF.
 
@@ -52,11 +53,16 @@ class VectorStoreManager:
         - Invariant 8: State isolation (national chunks OR subject's own state_code only).
         - Date validity: effective_from <= loan_date <= effective_to.
         """
-        # 1. Filter candidates by state isolation and effective date
+        # 1. Filter candidates by approval, state isolation and effective date.
+        # The current date is only a fallback for direct callers; compliance runs
+        # always pass the loan date explicitly.
         filtered_chunks: list[RegChunk] = []
-        target_date = date.fromisoformat(loan_date[:10]) if loan_date else date(2026, 10, 10)
+        target_date = date.fromisoformat(loan_date[:10]) if loan_date else date.today()
 
         for chunk in self.chunks.values():
+            if require_approved and not chunk.approved:
+                continue
+
             # State isolation check
             if chunk.scope == "state":
                 if state_code is None or chunk.state_code != state_code.upper():

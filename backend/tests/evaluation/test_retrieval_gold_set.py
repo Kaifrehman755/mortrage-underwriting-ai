@@ -34,10 +34,12 @@ def rag_system():
         vector_store=v_store,
         embedding_service=emb_service,
         default_threshold=0.30,
+        allow_unapproved=True,  # This module evaluates synthetic fixtures only.
     )
     return {
         "pipeline": pipeline,
         "store": v_store,
+        "embeddings": emb_service,
         "retriever": retriever,
         "total_chunks": total_chunks,
     }
@@ -274,6 +276,23 @@ In this Act, unless the context otherwise requires, borrower means any individua
 
     # Count must NOT change
     assert after_second_count == after_first_count
+
+
+def test_unapproved_sources_are_excluded_by_default(rag_system):
+    """Synthetic fixtures are not evidence unless a test explicitly opts in."""
+    retriever = GuidelineRetriever(
+        vector_store=rag_system["store"],
+        embedding_service=rag_system["embeddings"],
+        allow_unapproved=False,
+    )
+
+    evidence = retriever.retrieve(
+        query="Key Fact Statement Annual Percentage Rate APR cooling-off",
+        state_code="UP",
+        loan_date="2026-01-15",
+    )
+
+    assert evidence == []
 
 
 def test_evidence_item_contract_completeness(rag_system):

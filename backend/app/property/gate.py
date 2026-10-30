@@ -11,8 +11,15 @@ Playbook Section 1 Acceptance Tests:
 8. Rules apply as of the loan date; state isolation strictly preserved.
 """
 
+import re
+
 from app.property.normalize import check_protected_class_proxies
 from app.property.schemas import SharedCaseState
+
+_LEGAL_CONCLUSION_PATTERN = re.compile(
+    r"\b(violation|violates|violated|compliant|illegal|legally liable)\b",
+    re.IGNORECASE,
+)
 
 
 class GuardrailGateViolation(Exception):
@@ -61,6 +68,59 @@ class GuardrailGate:
                 violations.append("Invariant 4: Abstained valuation must set human_review_required=True")
             if state.model_output.confidence_label == "low" and not state.human_review_required:
                 violations.append("Invariant 4: Low confidence valuation must set human_review_required=True")
+
+        # Invariants 3, 4, 7 and 8 for compliance findings and their evidence.
+        evidence_by_id = {
+            str(item.get("evidence_id")): item for item in state.evidence
+        }
+        for finding in state.compliance:
+            rule_id = str(finding.get("rule_id", "unknown"))
+            status = str(finding.get("status", ""))
+            refs = [str(ref) for ref in finding.get("evidence_refs", [])]
+            explanation = str(finding.get("explanation", ""))
+
+            if status != "cannot_verify" and not refs:
+                violations.append(
+                    f"Invariant 3: finding {rule_id} has status {status} without evidence"
+                )
+            for ref in refs:
+                if ref not in evidence_by_id:
+                    violations.append(
+                        f"Invariant 3: finding {rule_id} cites missing evidence {ref}"
+                    )
+
+            if status == "cannot_verify" and not finding.get("missing_information"):
+                violations.append(
+                    f"Invariant 3: finding {rule_id} is cannot_verify without missing_information"
+                )
+            if status == "potential_issue":
+                if "potential issue for review" not in explanation.lower():
+                    violations.append(
+                        f"Invariant 7: finding {rule_id} does not use review wording"
+                    )
+                if finding.get("severity") not in {"low", "medium", "high"}:
+                    violations.append(
+                        f"Invariant 7: finding {rule_id} lacks a valid severity"
+                    )
+            if _LEGAL_CONCLUSION_PATTERN.search(explanation):
+                violations.append(
+                    f"Invariant 7: finding {rule_id} contains a legal conclusion"
+                )
+            if status != "no_issue_detected" and not state.human_review_required:
+                violations.append(
+                    f"Invariant 4: finding {rule_id} requires human review but state does not"
+                )
+
+            for ref in refs:
+                item = evidence_by_id.get(ref)
+                if item is None:
+                    continue
+                evidence_state = item.get("state_code")
+                if evidence_state and str(evidence_state).upper() != subject_state.upper():
+                    violations.append(
+                        f"Invariant 8: evidence {ref} belongs to {evidence_state}, "
+                        f"not {subject_state}"
+                    )
 
         return violations
 

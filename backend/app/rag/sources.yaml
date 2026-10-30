@@ -1,4 +1,6 @@
-# Approved Regulatory Document Registry for Mortgage Underwriting RAG
+# Candidate Regulatory Source Registry -- NOT APPROVED FOR RETRIEVAL
+# Every entry is fail-closed until an owner records approval, a real SHA-256,
+# and a terms snapshot. Placeholder URLs/hashes are not authority.
 # Adheres to Playbook Section 3b, 14.1 (India counterpart), 18.2, 19.1
 # Scope: 'national' applies everywhere; 'state' applies only to that state_code.
 
@@ -13,11 +15,11 @@ documents:
     effective_to: "2099-12-31"
     url: "https://www.rbi.org.in/Scripts/NotificationUser.aspx?Id=12658"
     terms_url: "https://www.rbi.org.in"
-    sha256: "a1b2c3d4e5f60718293a4b5c6d7e8f90123456789abcdef0123456789abcdef0"
-    approved: true
-    approved_by: "Lead Compliance Officer"
-    approved_at: "2026-10-01"
-    license_scope: "official_gazette_public"
+    sha256: "TODO-VERIFY"
+    approved: false
+    approved_by: null
+    approved_at: null
+    license_scope: "UNVERIFIED - NOT APPROVED FOR RETRIEVAL"
 
   - name: Real Estate (Regulation and Development) Act 2016
     authority: Parliament of India / Ministry of Housing and Urban Affairs
@@ -30,10 +32,10 @@ documents:
     url: "https://www.indiacode.nic.in/handle/123456789/2158"
     terms_url: "https://www.indiacode.nic.in"
     sha256: "b2c3d4e5f60718293a4b5c6d7e8f90123456789abcdef0123456789abcdef01"
-    approved: true
-    approved_by: "Lead Compliance Officer"
-    approved_at: "2026-10-01"
-    license_scope: "official_gazette_public"
+    approved: false
+    approved_by: null
+    approved_at: null
+    license_scope: "UNVERIFIED - NOT APPROVED FOR RETRIEVAL"
 
   - name: Uttar Pradesh Real Estate (Regulation and Development) Rules 2016
     authority: Government of Uttar Pradesh / UP-RERA
@@ -46,10 +48,10 @@ documents:
     url: "https://up-rera.in/rules"
     terms_url: "https://up-rera.in"
     sha256: "c3d4e5f60718293a4b5c6d7e8f90123456789abcdef0123456789abcdef012"
-    approved: true
-    approved_by: "Lead Compliance Officer"
-    approved_at: "2026-10-01"
-    license_scope: "official_gazette_public"
+    approved: false
+    approved_by: null
+    approved_at: null
+    license_scope: "UNVERIFIED - NOT APPROVED FOR RETRIEVAL"
 
   - name: Maharashtra Real Estate (Regulation and Development) Rules 2017
     authority: Government of Maharashtra / MahaRERA
@@ -62,10 +64,10 @@ documents:
     url: "https://maharera.maharashtra.gov.in/rules"
     terms_url: "https://maharera.maharashtra.gov.in"
     sha256: "d4e5f60718293a4b5c6d7e8f90123456789abcdef0123456789abcdef0123"
-    approved: true
-    approved_by: "Lead Compliance Officer"
-    approved_at: "2026-10-01"
-    license_scope: "official_gazette_public"
+    approved: false
+    approved_by: null
+    approved_at: null
+    license_scope: "UNVERIFIED - NOT APPROVED FOR RETRIEVAL"
 
   - name: SARFAESI Act 2002 and CERSAI Registration Rules
     authority: Parliament of India / CERSAI
@@ -78,10 +80,10 @@ documents:
     url: "https://www.cersai.org.in"
     terms_url: "https://www.cersai.org.in"
     sha256: "e5f60718293a4b5c6d7e8f90123456789abcdef0123456789abcdef01234"
-    approved: true
-    approved_by: "Lead Compliance Officer"
-    approved_at: "2026-10-01"
-    license_scope: "official_gazette_public"
+    approved: false
+    approved_by: null
+    approved_at: null
+    license_scope: "UNVERIFIED - NOT APPROVED FOR RETRIEVAL"
 
   - name: RBI Master Direction - Know Your Customer (KYC) Direction 2016
     authority: Reserve Bank of India (RBI)
@@ -94,10 +96,10 @@ documents:
     url: "https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=11566"
     terms_url: "https://www.rbi.org.in"
     sha256: "f60718293a4b5c6d7e8f90123456789abcdef0123456789abcdef012345"
-    approved: true
-    approved_by: "Lead Compliance Officer"
-    approved_at: "2026-10-01"
-    license_scope: "official_gazette_public"
+    approved: false
+    approved_by: null
+    approved_at: null
+    license_scope: "UNVERIFIED - NOT APPROVED FOR RETRIEVAL"
 
   - name: RBI Housing Loans Prudential Norms on LTV and Risk Weights
     authority: Reserve Bank of India (RBI)
@@ -110,10 +112,10 @@ documents:
     url: "https://www.rbi.org.in/Scripts/NotificationUser.aspx?Id=12280"
     terms_url: "https://www.rbi.org.in"
     sha256: "0718293a4b5c6d7e8f90123456789abcdef0123456789abcdef0123456"
-    approved: true
-    approved_by: "Lead Compliance Officer"
-    approved_at: "2026-10-01"
-    license_scope: "official_gazette_public"
+    approved: false
+    approved_by: null
+    approved_at: null
+    license_scope: "UNVERIFIED - NOT APPROVED FOR RETRIEVAL"
 
   - name: IBBI Registered Valuers and Valuation Standards Rules 2017
     authority: Insolvency and Bankruptcy Board of India (IBBI)
@@ -126,7 +128,7 @@ documents:
     url: "https://www.ibbi.gov.in"
     terms_url: "https://www.ibbi.gov.in"
     sha256: "18293a4b5c6d7e8f90123456789abcdef0123456789abcdef01234567"
-    approved: true
-    approved_by: "Lead Compliance Officer"
-    approved_at: "2026-10-01"
-    license_scope: "official_gazette_public"
+    approved: false
+    approved_by: null
+    approved_at: null
+    license_scope: "UNVERIFIED - NOT APPROVED FOR RETRIEVAL"

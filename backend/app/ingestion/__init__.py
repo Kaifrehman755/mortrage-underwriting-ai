@@ -3,6 +3,10 @@
 Enforces GEMINI.md Section 4, Section 5, Section 6, and Section 10 Step 3.
 """
 
+from app.ingestion.bronze import (
+    RawRecordRepository,
+    build_record_fingerprint,
+)
 from app.ingestion.circle_rates import (
     CircleRateIngestionResult,
     CircleRateIngestor,
@@ -60,6 +64,8 @@ __all__ = [
     "generate_source_id",
     "DeduplicationIndex",
     "generate_reference_rate_key",
+    "RawRecordRepository",
+    "build_record_fingerprint",
     "validate_reference_rate_row",
     "validate_transaction_row",
     "QuarantineReason",

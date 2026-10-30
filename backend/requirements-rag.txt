@@ -1,0 +1,8 @@
+# Production regulatory-evidence embedding runtime.
+#
+# Install this file only where approved regulatory text is ingested or queried.
+# The unit-test environment intentionally does not install it; the deterministic
+# projection fallback is test/dev-only and production construction fails closed.
+#
+# The playbook pins BAAI/bge-small-en-v1.5 (384 dimensions).
+sentence-transformers>=3.0,<6.0

@@ -3,8 +3,9 @@
 Adheres to Playbook Section 2 & 4:
 - Target dimension: 384 dimensions (matching BAAI/bge-small-en-v1.5).
 - Emits unit-normalized vectors where dot_product == cosine_similarity.
-- Uses sentence-transformers when installed, with a fast deterministic
-  random projection fallback ensuring offline reproducibility.
+- Uses sentence-transformers when installed. The deterministic projection fallback
+  is development/test-only; production construction fails closed unless the real
+  embedding model is available.
 """
 
 import hashlib
@@ -14,22 +15,46 @@ from typing import Any
 
 import numpy as np
 
+from app.core.config import get_settings
+
+
+class EmbeddingModelUnavailable(RuntimeError):
+    """Raised when production needs the real embedding model but it is absent."""
+
 
 class EmbeddingService:
     """Computes 384-dimensional dense semantic embeddings for regulatory text and queries."""
 
-    def __init__(self, model_name: str = "BAAI/bge-small-en-v1.5", dimension: int = 384):
+    def __init__(
+        self,
+        model_name: str = "BAAI/bge-small-en-v1.5",
+        dimension: int = 384,
+        *,
+        require_model: bool | None = None,
+    ):
         self.model_name = model_name
         self.dimension = dimension
         self._st_model: Any = None
         self._projection_matrix: np.ndarray | None = None
 
-        # Attempt to load sentence-transformers if available
+        # Attempt to load sentence-transformers if available.
         try:
             from sentence_transformers import SentenceTransformer
             self._st_model = SentenceTransformer(model_name)
         except Exception:
             self._st_model = None
+
+        if require_model is None:
+            require_model = get_settings().APP_ENV.strip().lower() in {
+                "production",
+                "prod",
+            }
+        if self._st_model is None and require_model:
+            raise EmbeddingModelUnavailable(
+                "The real embedding model is required but sentence-transformers "
+                f"or {model_name} is unavailable. Install the approved RAG runtime; "
+                "the deterministic projection fallback is not production evidence."
+            )
 
     def _get_projection_matrix(self) -> np.ndarray:
         """Create a fixed, reproducible random projection matrix for 384 dimensions."""

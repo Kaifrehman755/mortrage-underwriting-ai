@@ -28,11 +28,15 @@ class GuidelineRetriever:
         embedding_service: EmbeddingService | None = None,
         reranker: CrossEncoderReranker | None = None,
         default_threshold: float = 0.35,
+        allow_unapproved: bool = False,
     ):
         self.vector_store = vector_store or VectorStoreManager()
         self.embedding_service = embedding_service or EmbeddingService()
         self.reranker = reranker or CrossEncoderReranker(enabled=False)
         self.default_threshold = default_threshold
+        # Production retrieval only sees owner-approved sources. Tests and
+        # synthetic evaluations must opt in explicitly.
+        self.allow_unapproved = allow_unapproved
 
     def retrieve(
         self,
@@ -66,6 +70,7 @@ class GuidelineRetriever:
             state_code=state_code,
             loan_date=loan_date,
             top_k=top_k * 2,
+            require_approved=not self.allow_unapproved,
         )
 
         if not candidates:
@@ -94,13 +99,14 @@ class GuidelineRetriever:
                 retrieval_ref=chunk.chunk_id,
                 source_name=chunk.source_name,
                 authority=chunk.authority,
-                version_or_date="2026-10-01",
+                version_or_date=chunk.version_or_date,
                 section_or_page=chunk.section_ref,
                 scope=chunk.scope,
                 state_code=chunk.state_code,
                 snippet=chunk.text,  # Verbatim quoted text
                 score=round(score, 4),
                 retrieved_at=datetime.now(UTC).isoformat(),
+                license_scope=chunk.license_scope,
                 index_version=chunk.index_version,
             )
             evidence_items.append(item)

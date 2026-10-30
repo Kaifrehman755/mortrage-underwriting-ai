@@ -1,11 +1,17 @@
 """Unit tests for exception hierarchy and error handling."""
 
+from fastapi import FastAPI
+from fastapi.exceptions import RequestValidationError
+from fastapi.testclient import TestClient
+from pydantic import BaseModel, ValidationError, model_validator
+
 from app.core.exceptions import (
     AppException,
     ComplianceException,
     DocumentProcessingException,
     ValidationException,
     WorkflowException,
+    register_exception_handlers,
 )
 
 
@@ -44,3 +50,35 @@ def test_workflow_exception():
     exc = WorkflowException("Agent execution timeout")
     assert exc.status_code == 500
     assert exc.error_code == "WORKFLOW_ERROR"
+
+
+def test_custom_validator_error_returns_serializable_422() -> None:
+    """A ValueError in a Pydantic model_validator must not become a 500."""
+    class RejectsEverything(BaseModel):
+        value: int
+
+        @model_validator(mode="after")
+        def reject(self) -> None:
+            raise ValueError("raw identifier is not accepted")
+
+    try:
+        RejectsEverything(value=1)
+    except ValidationError as exc:
+        request_error = RequestValidationError(exc.errors(), body={})
+    else:  # pragma: no cover - defensive
+        raise AssertionError("validator did not reject")
+
+    test_app = FastAPI()
+    register_exception_handlers(test_app)
+
+    @test_app.get("/raise-validation")
+    def raise_validation() -> None:
+        raise request_error
+
+    response = TestClient(test_app, raise_server_exceptions=False).get(
+        "/raise-validation"
+    )
+    assert response.status_code == 422
+    payload = response.json()
+    assert payload["error"]["code"] == "REQUEST_VALIDATION_ERROR"
+    assert "raw identifier" in str(payload)

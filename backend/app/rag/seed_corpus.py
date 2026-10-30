@@ -193,6 +193,15 @@ def load_seed_corpus(pipeline: DocumentIngestionPipeline) -> int:
     """Ingest the complete seed regulatory corpus into the pipeline vector store."""
     total_chunks = 0
     for doc in CORPUS_DOCUMENTS:
-        chunks = pipeline.ingest_document_text(doc["meta"], doc["text"])
+        # These texts are evaluation fixtures, not owner-approved regulatory
+        # evidence. Never mark them approved just because they resemble a real
+        # source. A production deployment must ingest and approve real sources.
+        meta = doc["meta"].model_copy(
+            update={
+                "approved": False,
+                "license_scope": "synthetic_test_fixture",
+            }
+        )
+        chunks = pipeline.ingest_document_text(meta, doc["text"])
         total_chunks += len(chunks)
     return total_chunks
